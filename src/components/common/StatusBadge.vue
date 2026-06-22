@@ -1,18 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { useStatusBadge } from './useStatusBadge'
 
-const props = defineProps<{ status?: string | null }>();
-
-const map: Record<string, "success" | "warning" | "info" | "danger"> = {
-  active: "success",
-  inactive: "info",
-  published: "success",
-  draft: "warning",
-  archived: "info",
-};
-
-const statusType = computed(() => map[props.status ?? ""] || "info");
-const statusLabel = computed(() => props.status ?? "Unknown");
+const props = defineProps<{ status?: string | null }>()
+const { statusType, statusLabel } = useStatusBadge(() => props.status)
 </script>
 
 <template>

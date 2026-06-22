@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { UploadProps } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
+import { useImageUpload } from './useImageUpload'
 
 const props = defineProps<{ modelValue: File | string | null | undefined }>()
 const emit = defineEmits<{ 'update:modelValue': [value: File | null] }>()
 
-const preview = ref<string | null>(typeof props.modelValue === 'string' ? props.modelValue : null)
-
-const imageUrl = computed(() => preview.value || (typeof props.modelValue === 'string' ? props.modelValue : ''))
-
-const beforeUpload: UploadProps['beforeUpload'] = (file) => {
-  emit('update:modelValue', file)
-  preview.value = URL.createObjectURL(file)
-  return false
-}
+const { imageUrl, beforeUpload } = useImageUpload(() => props.modelValue, (value) => emit('update:modelValue', value))
 </script>
 
 <template>

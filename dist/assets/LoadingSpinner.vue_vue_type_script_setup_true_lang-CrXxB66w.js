@@ -1,1 +1,0 @@
-import{d as t,r as o,o as s,c as a,e,w as c,i,Y as r}from"./index-B_8nXWbJ.js";const _={class:"flex min-h-48 items-center justify-center"},f=t({__name:"LoadingSpinner",setup(l){return(d,m)=>{const n=o("el-icon");return s(),a("div",_,[e(n,{class:"is-loading text-3xl text-brand-600"},{default:c(()=>[e(i(r))]),_:1})])}}});export{f as _};

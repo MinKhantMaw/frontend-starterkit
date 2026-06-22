@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { usePermissionGuard } from './usePermissionGuard'
 
 const props = defineProps<{ permission?: string | string[] }>()
-const auth = useAuthStore()
-const allowed = computed(() => auth.can(props.permission))
+const { allowed } = usePermissionGuard(() => props.permission)
 </script>
 
 <template>

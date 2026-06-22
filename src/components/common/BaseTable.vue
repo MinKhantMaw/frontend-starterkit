@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { useBaseTable, type BaseTableProps } from './useBaseTable'
 
-const props = defineProps<{
-  data?: unknown[];
-  loading?: boolean;
-  emptyText?: string;
-}>();
-
-const tableData = computed(() => props.data ?? []);
-const loadingState = computed(() => Boolean(props.loading));
+const props = defineProps<BaseTableProps>()
+const { tableData, loadingState } = useBaseTable(() => props)
 </script>
 
 <template>

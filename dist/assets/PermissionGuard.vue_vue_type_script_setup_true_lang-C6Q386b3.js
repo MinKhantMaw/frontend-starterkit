@@ -1,1 +1,0 @@
-import{d as n,u as a,U as u,z as m,E as p}from"./index-B_8nXWbJ.js";const d=n({__name:"PermissionGuard",props:{permission:{}},setup(e){const s=e,o=a(),t=p(()=>o.can(s.permission));return(r,c)=>t.value?u(r.$slots,"default",{key:0}):m("",!0)}});export{d as _};

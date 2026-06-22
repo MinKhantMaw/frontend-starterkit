@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PaginationMeta } from '@/types'
+import type { PaginationMeta } from '@/libs/types'
 
 defineProps<{ meta: PaginationMeta | null }>()
 const emit = defineEmits<{ change: [page: number] }>()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElMessageBox } from 'element-plus'
+import { useConfirmDialog } from './useConfirmDialog'
 
 const props = withDefaults(
   defineProps<{
@@ -17,16 +17,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{ confirm: [] }>()
-
-async function open() {
-  await ElMessageBox.confirm(props.message, props.title, {
-    confirmButtonText: props.confirmText,
-    cancelButtonText: 'Cancel',
-    type: props.type,
-  })
-  emit('confirm')
-}
-
+const { open } = useConfirmDialog(props, () => emit('confirm'))
 defineExpose({ open })
 </script>
 
