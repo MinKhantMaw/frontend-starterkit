@@ -1,47 +1,58 @@
 import { defineStore } from 'pinia'
-import { ElMessage } from 'element-plus'
-import { rolesApi, type RolePayload } from '@/modules/roles/service'
-import type { PaginationMeta, QueryParams, Role } from '@/libs/types'
+import { roleService } from './service'
+import { notifySuccess } from '@/utils/notify'
+import type { PaginationMeta } from '@/types/api'
+import type { Role, RoleFilters, RolePayload } from '@/modules/roles/types'
 
 export const useRoleStore = defineStore('roles', {
   state: () => ({
-    roles: [] as Role[],
-    current: null as Role | null,
-    meta: null as PaginationMeta | null,
+    items: [] as Role[],
+    current: null as Role | null | undefined,
+    meta: { page: 1, perPage: 10, total: 0 } as PaginationMeta,
     loading: false,
+    saving: false,
+    error: '' as string,
   }),
   actions: {
-    async fetchRoles(params: QueryParams = {}) {
+    async fetchRoles(params: RoleFilters = {}): Promise<void> {
       this.loading = true
       try {
-        const response = await rolesApi.list(params)
-        this.roles = response.data
-        this.meta = response.meta ?? null
+        const response = await roleService.list(params)
+        this.items = response.data
+        this.meta = response.meta
       } finally {
         this.loading = false
       }
     },
-    async fetchRole(id: string | number) {
+    async fetchRole(id: string | number): Promise<void> {
       this.loading = true
       try {
-        this.current = await rolesApi.get(id)
+        this.current = await roleService.find(id)
       } finally {
         this.loading = false
       }
     },
-    async createRole(payload: RolePayload) {
-      const role = await rolesApi.create(payload)
-      await rolesApi.assignPermissions(role.id, payload.permissions)
-      ElMessage.success('Role created')
+    async createRole(payload: RolePayload): Promise<void> {
+      this.saving = true
+      try {
+        await roleService.create(payload)
+        notifySuccess('Role created')
+      } finally {
+        this.saving = false
+      }
     },
-    async updateRole(id: string | number, payload: RolePayload) {
-      await rolesApi.update(id, payload)
-      await rolesApi.assignPermissions(id, payload.permissions)
-      ElMessage.success('Role updated')
+    async updateRole(id: string | number, payload: Partial<RolePayload>): Promise<void> {
+      this.saving = true
+      try {
+        this.current = await roleService.update(id, payload)
+        notifySuccess('Role updated')
+      } finally {
+        this.saving = false
+      }
     },
-    async deleteRole(id: string | number) {
-      await rolesApi.remove(id)
-      ElMessage.success('Role deleted')
+    async deleteRole(id: string | number): Promise<void> {
+      await roleService.remove(id)
+      notifySuccess('Role deleted')
     },
   },
 })

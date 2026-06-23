@@ -1,101 +1,62 @@
-import api from '@/libs/http'
-import type { ApiListResponse, PaginationMeta, QueryParams, User } from '@/libs/types'
+import api from '@/api/http'
+import type { PaginatedResponse } from '@/types/api'
+import type { User, UserCreatePayload, UserFilters, UserUpdatePayload } from '@/modules/users/types'
 
-export interface UserPayload {
-  name: string
-  email: string
-  password?: string
-  status: string
-  role_id?: number | string
-  avatar?: File | string | null
-  _method?: string
+let users: User[] = [
+  { id: 1, name: 'Enterprise Admin', email: 'admin@example.com', role: 'admin', status: 'active', phone: '+1 555 0100' },
+  { id: 2, name: 'Operations Manager', email: 'manager@example.com', role: 'manager', status: 'active', phone: '+1 555 0101' },
+  { id: 3, name: 'Front Desk Operator', email: 'operator@example.com', role: 'operator', status: 'invited', phone: '+1 555 0102' },
+]
+
+function paginate(items: User[], page: number, perPage: number): PaginatedResponse<User> {
+  const start = (page - 1) * perPage
+  return { data: items.slice(start, start + perPage), meta: { page, perPage, total: items.length } }
 }
 
-function toFormData(payload: UserPayload) {
-  const formData = new FormData()
-  Object.entries(payload).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      formData.append(key, value instanceof File ? value : String(value))
-    }
+function filterUsers(params: UserFilters = {}): User[] {
+  return users.filter((user) => {
+    const search = params.search?.toLowerCase()
+    const matchesSearch = !search || [user.name, user.email, user.phone].some((value) => value?.toLowerCase().includes(search))
+    const matchesRole = !params.role || user.role === params.role
+    const matchesStatus = !params.status || user.status === params.status
+    return matchesSearch && matchesRole && matchesStatus
   })
-  return formData
 }
 
-type ApiListResponseWrapper<T> =
-  | ApiListResponse<T>
-  | { data: ApiListResponse<T> }
-  | T[]
-  | { data: T[] }
-  | { data: { data: T[]; meta?: PaginationMeta } }
-  | { data: { items: T[]; meta?: PaginationMeta } }
-  | { items: T[]; meta?: PaginationMeta }
-
-function unwrapListResponse<T>(response: ApiListResponseWrapper<T>): ApiListResponse<T> {
-  if (Array.isArray(response)) {
-    return { data: response }
-  }
-
-  if (response && 'items' in response && Array.isArray(response.items)) {
-    return {
-      data: response.items,
-      ...(response.meta ? { meta: response.meta } : {}),
+export const userService = {
+  async list(params: UserFilters = {}): Promise<PaginatedResponse<User>> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.get<PaginatedResponse<User>>('/users', { params })
+      return data
     }
-  }
-
-  if (response && 'data' in response && Array.isArray(response.data)) {
-    return {
-      data: response.data,
-      ...(response as { meta?: PaginationMeta }).meta ? { meta: (response as { meta?: PaginationMeta }).meta } : {},
+    return paginate(filterUsers(params), Number(params.page || 1), Number(params.perPage || 10))
+  },
+  async find(id: string | number): Promise<User | undefined> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.get<{ data?: User } | User>(`/users/${id}`)
+      return ((data as { data?: User }).data ?? data) as User
     }
-  }
-
-  if (response && 'data' in response && response.data && typeof response.data === 'object') {
-    const innerData = response.data as { data?: T[]; items?: T[]; meta?: PaginationMeta }
-
-    if (Array.isArray(innerData.items)) {
-      return {
-        data: innerData.items,
-        ...(innerData.meta ? { meta: innerData.meta } : {}),
-      }
+    return users.find((user) => String(user.id) === String(id))
+  },
+  async create(payload: UserCreatePayload): Promise<User> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.post<{ data?: User } | User>('/users', payload)
+      return ((data as { data?: User }).data ?? data) as User
     }
-
-    if (Array.isArray(innerData.data)) {
-      return {
-        data: innerData.data,
-        ...(innerData.meta ? { meta: innerData.meta } : {}),
-      }
+    const user: User = { ...payload, id: Date.now() }
+    users = [user, ...users]
+    return user
+  },
+  async update(id: string | number, payload: Partial<UserUpdatePayload>): Promise<User | undefined> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.put<{ data?: User } | User>(`/users/${id}`, payload)
+      return ((data as { data?: User }).data ?? data) as User
     }
-  }
-
-  return response as ApiListResponse<T>
-}
-
-export const usersApi = {
-  async list(params: QueryParams) {
-    const { data } = await api.get<ApiListResponseWrapper<User>>('/users', { params })
-    return unwrapListResponse(data)
+    users = users.map((user) => (String(user.id) === String(id) ? { ...user, ...payload } : user))
+    return users.find((user) => String(user.id) === String(id))
   },
-  async get(id: number | string) {
-    const { data } = await api.get<{ data?: User } | User>(`/users/${id}`)
-    return 'data' in data && data.data ? data.data : (data as User)
-  },
-  async create(payload: UserPayload) {
-    const { data } = await api.post<{ data?: User } | User>('/users', toFormData(payload))
-    return 'data' in data && data.data ? data.data : (data as User)
-  },
-  async update(id: number | string, payload: UserPayload) {
-    const { data } = await api.put<{ data?: User } | User>(`/users/${id}`, toFormData(payload))
-    return 'data' in data && data.data ? data.data : (data as User)
-  },
-  async remove(id: number | string) {
-    await api.delete(`/users/${id}`)
-  },
-  async setStatus(id: number | string, status: string) {
-    const { data } = await api.patch<{ data?: User } | User>(`/users/${id}/status`, { status })
-    return 'data' in data && data.data ? data.data : (data as User)
-  },
-  async assignRole(id: number | string, roleId: number | string) {
-    const { data } = await api.patch<{ data?: User } | User>(`/users/${id}/assign-role`, { role_id: roleId })
-    return 'data' in data && data.data ? data.data : (data as User)
+  async remove(id: string | number): Promise<void> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') await api.delete(`/users/${id}`)
+    users = users.filter((user) => String(user.id) !== String(id))
   },
 }

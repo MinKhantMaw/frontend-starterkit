@@ -1,0 +1,47 @@
+export const PERMISSIONS = {
+  DASHBOARD_VIEW: 'dashboard.view',
+  USERS_VIEW: 'users.view',
+  USERS_CREATE: 'users.create',
+  USERS_UPDATE: 'users.update',
+  USERS_DELETE: 'users.delete',
+  ROLES_VIEW: 'roles.view',
+  ROLES_CREATE: 'roles.create',
+  ROLES_UPDATE: 'roles.update',
+  ROLES_DELETE: 'roles.delete',
+  PERMISSIONS_VIEW: 'permissions.view',
+  PROFILE_VIEW: 'profile.view',
+  PROFILE_UPDATE: 'profile.update',
+  AUDIT_LOGS_VIEW: 'auditLogs.view',
+  ACTIVITY_LOGS_VIEW: 'activityLogs.view',
+  NOTIFICATIONS_VIEW: 'notifications.view',
+} as const
+
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS]
+
+export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+  super_admin: Object.values(PERMISSIONS),
+  admin: [
+    PERMISSIONS.DASHBOARD_VIEW,
+    PERMISSIONS.USERS_VIEW,
+    PERMISSIONS.USERS_CREATE,
+    PERMISSIONS.USERS_UPDATE,
+    PERMISSIONS.ROLES_VIEW,
+    PERMISSIONS.ROLES_CREATE,
+    PERMISSIONS.ROLES_UPDATE,
+    PERMISSIONS.PERMISSIONS_VIEW,
+    PERMISSIONS.PROFILE_VIEW,
+    PERMISSIONS.PROFILE_UPDATE,
+    PERMISSIONS.AUDIT_LOGS_VIEW,
+    PERMISSIONS.ACTIVITY_LOGS_VIEW,
+    PERMISSIONS.NOTIFICATIONS_VIEW,
+  ],
+  manager: [
+    PERMISSIONS.DASHBOARD_VIEW,
+    PERMISSIONS.USERS_VIEW,
+    PERMISSIONS.ROLES_VIEW,
+    PERMISSIONS.PERMISSIONS_VIEW,
+    PERMISSIONS.PROFILE_VIEW,
+    PERMISSIONS.ACTIVITY_LOGS_VIEW,
+  ],
+  operator: [PERMISSIONS.DASHBOARD_VIEW, PERMISSIONS.PROFILE_VIEW],
+}

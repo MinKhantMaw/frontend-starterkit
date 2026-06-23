@@ -1,14 +1,14 @@
-<script setup lang="ts">
+<script setup>
 import Toast from 'primevue/toast'
-import ConfirmDialog from 'primevue/confirmdialog'
-import GlobalLoader from '@/components/GlobalLoader.vue'
-import ToastBridge from '@/components/ToastBridge.vue'
+import BaseConfirmDialog from '@/components/base/ConfirmDialog.vue'
+import LoadingOverlay from '@/components/common/LoadingOverlay.vue'
+import NotifierBridge from '@/components/common/NotifierBridge.vue'
 </script>
 
 <template>
   <RouterView />
   <Toast position="top-right" />
-  <ConfirmDialog />
-  <GlobalLoader />
-  <ToastBridge />
+  <BaseConfirmDialog />
+  <NotifierBridge />
+  <LoadingOverlay />
 </template>

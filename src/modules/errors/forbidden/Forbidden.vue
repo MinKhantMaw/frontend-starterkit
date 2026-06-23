@@ -1,12 +1,8 @@
 <template>
-  <div class="grid min-h-[60vh] place-items-center text-center">
-    <div>
-      <p class="text-sm font-semibold text-brand-700">403</p>
-      <h1 class="mt-2 text-3xl font-semibold text-slate-950">Permission denied</h1>
-      <p class="mt-2 text-slate-500">Your account does not have permission to access this page.</p>
-      <RouterLink to="/dashboard">
-        <el-button class="mt-6" type="primary">Back to dashboard</el-button>
-      </RouterLink>
-    </div>
-  </div>
+  <section class="panel mx-auto max-w-xl p-8 text-center">
+    <i class="pi pi-lock text-3xl text-amber-600" />
+    <h1 class="mt-4 text-xl font-semibold">Access denied</h1>
+    <p class="muted mt-2">Your current role does not include permission to view this page.</p>
+    <RouterLink class="mt-5 inline-flex font-medium text-cyan-700" to="/dashboard">Return to dashboard</RouterLink>
+  </section>
 </template>

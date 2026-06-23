@@ -1,90 +1,78 @@
 import { defineStore } from 'pinia'
-import { authApi, type ChangePasswordPayload, type LoginPayload } from '@/modules/auth/service'
-import type { AuthUser } from '@/libs/types'
-import { tokenStorage } from '@/libs/auth'
-import { notify } from '@/libs/notify'
+import { authService } from '@/modules/auth/service'
+import { tokenStorage } from '@/api/tokenStorage'
+import { hasPermission, hasRole } from '@/utils/permissions'
+import { notifySuccess } from '@/utils/notify'
+import type { AuthUser, LoginPayload, RoleKey } from '@/types/auth'
+
+export interface AuthState {
+  token: string | null
+  user: AuthUser | null
+  roles: RoleKey[]
+  permissions: string[]
+  loading: boolean
+}
 
 export const useAuthStore = defineStore('auth', {
-  state: () => ({
+  state: (): AuthState => ({
     token: tokenStorage.get(),
-    user: null as AuthUser | null,
-    roles: [] as string[],
-    permissions: [] as string[],
+    user: null,
+    roles: [],
+    permissions: [],
     loading: false,
   }),
   getters: {
-    isAuthenticated: (state) => Boolean(state.token),
-    rolesList: (state) => (Array.isArray(state.roles) ? state.roles : []),
-    permissionsList: (state) => (Array.isArray(state.permissions) ? state.permissions : []),
+    isAuthenticated: (state): boolean => Boolean(state.token),
   },
   actions: {
-    setUser(user: AuthUser) {
+    setUser(user: AuthUser): void {
       this.user = user
-      this.roles = Array.isArray(user.roles) ? user.roles : []
-      this.permissions = Array.isArray(user.permissions) ? user.permissions : []
+      this.roles = user.roles || []
+      this.permissions = user.permissions || []
     },
-    hasRole(required?: string | string[]) {
-      if (!required) return false
-      const roles = Array.isArray(this.roles) ? this.roles : []
-      const requiredRoles = Array.isArray(required) ? required : [required]
-      return requiredRoles.some((role) => roles.includes(role))
+    hasRole(required?: string | string[]): boolean {
+      return hasRole(this.roles, required)
     },
-    hasPermission(required?: string | string[]) {
-      if (!required) return true
-      if (this.hasRole('Super Admin')) return true
-      const permissions = Array.isArray(this.permissions) ? this.permissions : []
-      const requiredPermissions = Array.isArray(required) ? required : [required]
-      return requiredPermissions.every((permission) => permissions.includes(permission))
+    hasPermission(required?: string | string[]): boolean {
+      return hasPermission(this.permissions, this.roles, required)
     },
-    async login(payload: LoginPayload) {
+    async login(payload: LoginPayload): Promise<void> {
       this.loading = true
       try {
-        const response = await authApi.login(payload)
-        const token = response.token ?? response.access_token
+        const response = await authService.login(payload)
+        const token = response.token || response.access_token
         if (!token) throw new Error('Login response did not include a token')
+
         this.token = token
         tokenStorage.set(token)
-
-        const user = response.user ?? (await authApi.profile())
-        this.setUser(user)
-
-        notify('success', 'Welcome back', `Signed in as ${user.name}`)
+        this.setUser(response.user || (await authService.profile()))
+        notifySuccess('Signed in successfully')
       } finally {
         this.loading = false
       }
     },
-    async fetchProfile() {
+    async fetchProfile(): Promise<void> {
       if (!this.token) return
       this.loading = true
       try {
-        const user = await authApi.profile()
-        this.setUser(user)
+        this.setUser(await authService.profile())
       } finally {
         this.loading = false
       }
     },
-    async logout() {
+    async logout(): Promise<void> {
       try {
-        if (this.token) await authApi.logout()
+        await authService.logout()
       } finally {
         this.clearSession()
       }
     },
-    clearSession() {
+    clearSession(): void {
       this.token = null
       this.user = null
       this.roles = []
       this.permissions = []
       tokenStorage.clear()
-    },
-    async changePassword(payload: ChangePasswordPayload) {
-      this.loading = true
-      try {
-        await authApi.changePassword(payload)
-        notify('success', 'Password changed')
-      } finally {
-        this.loading = false
-      }
     },
   },
 })

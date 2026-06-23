@@ -1,82 +1,51 @@
-import api from '@/libs/http'
-import type { ApiListResponse, PaginationMeta, QueryParams, Role } from '@/libs/types'
+import api from '@/api/http'
+import { ROLE_PERMISSIONS } from '@/constants/permissions'
+import type { PaginatedResponse } from '@/types/api'
+import type { Role, RoleFilters, RolePayload } from '@/modules/roles/types'
 
-export interface RolePayload {
-  name: string
-  permissions: string[]
-}
+let roles: Role[] = [
+  { id: 1, name: 'Super Admin', key: 'super_admin', permissions: ROLE_PERMISSIONS.super_admin },
+  { id: 2, name: 'Admin', key: 'admin', permissions: ROLE_PERMISSIONS.admin },
+  { id: 3, name: 'Manager', key: 'manager', permissions: ROLE_PERMISSIONS.manager },
+  { id: 4, name: 'Operator', key: 'operator', permissions: ROLE_PERMISSIONS.operator },
+]
 
-type ApiListResponseWrapper<T> =
-  | ApiListResponse<T>
-  | { data: ApiListResponse<T> }
-  | T[]
-  | { data: T[] }
-  | { data: { data: T[]; meta?: PaginationMeta } }
-  | { data: { items: T[]; meta?: PaginationMeta } }
-  | { items: T[]; meta?: PaginationMeta }
-
-function unwrapListResponse<T>(response: ApiListResponseWrapper<T>): ApiListResponse<T> {
-  if (Array.isArray(response)) {
-    return { data: response }
-  }
-
-  if (response && 'items' in response && Array.isArray(response.items)) {
-    return {
-      data: response.items,
-      ...(response.meta ? { meta: response.meta } : {}),
+export const roleService = {
+  async list(params: RoleFilters = {}): Promise<PaginatedResponse<Role>> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.get<PaginatedResponse<Role>>('/roles', { params })
+      return data
     }
-  }
-
-  if (response && 'data' in response && Array.isArray(response.data)) {
-    return {
-      data: response.data,
-      ...(response as { meta?: PaginationMeta }).meta ? { meta: (response as { meta?: PaginationMeta }).meta } : {},
+    const search = params.search?.toLowerCase()
+    const data = search ? roles.filter((role) => [role.name, role.key].some((value) => value.toLowerCase().includes(search))) : roles
+    return { data, meta: { page: 1, perPage: 10, total: data.length } }
+  },
+  async find(id: string | number): Promise<Role | undefined> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.get<{ data?: Role } | Role>(`/roles/${id}`)
+      return ((data as { data?: Role }).data ?? data) as Role
     }
-  }
-
-  if (response && 'data' in response && response.data && typeof response.data === 'object') {
-    const innerData = response.data as { data?: T[]; items?: T[]; meta?: PaginationMeta }
-
-    if (Array.isArray(innerData.items)) {
-      return {
-        data: innerData.items,
-        ...(innerData.meta ? { meta: innerData.meta } : {}),
-      }
+    return roles.find((role) => String(role.id) === String(id))
+  },
+  async create(payload: RolePayload): Promise<Role> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.post<{ data?: Role } | Role>('/roles', payload)
+      return ((data as { data?: Role }).data ?? data) as Role
     }
-
-    if (Array.isArray(innerData.data)) {
-      return {
-        data: innerData.data,
-        ...(innerData.meta ? { meta: innerData.meta } : {}),
-      }
+    const role: Role = { ...payload, id: Date.now() }
+    roles = [role, ...roles]
+    return role
+  },
+  async update(id: string | number, payload: Partial<RolePayload>): Promise<Role | undefined> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.put<{ data?: Role } | Role>(`/roles/${id}`, payload)
+      return ((data as { data?: Role }).data ?? data) as Role
     }
-  }
-
-  return response as ApiListResponse<T>
-}
-
-export const rolesApi = {
-  async list(params: QueryParams = {}) {
-    const { data } = await api.get<ApiListResponseWrapper<Role>>('/roles', { params })
-    return unwrapListResponse(data)
+    roles = roles.map((role) => (String(role.id) === String(id) ? { ...role, ...payload } : role))
+    return roles.find((role) => String(role.id) === String(id))
   },
-  async get(id: number | string) {
-    const { data } = await api.get<{ data?: Role } | Role>(`/roles/${id}`)
-    return 'data' in data && data.data ? data.data : (data as Role)
-  },
-  async create(payload: RolePayload) {
-    const { data } = await api.post<{ data?: Role } | Role>('/roles', { name: payload.name })
-    return 'data' in data && data.data ? data.data : (data as Role)
-  },
-  async update(id: number | string, payload: RolePayload) {
-    const { data } = await api.put<{ data?: Role } | Role>(`/roles/${id}`, { name: payload.name })
-    return 'data' in data && data.data ? data.data : (data as Role)
-  },
-  async remove(id: number | string) {
-    await api.delete(`/roles/${id}`)
-  },
-  async assignPermissions(id: number | string, permissions: string[]) {
-    const { data } = await api.patch<{ data?: Role } | Role>(`/roles/${id}/permissions`, { permissions })
-    return 'data' in data && data.data ? data.data : (data as Role)
+  async remove(id: string | number): Promise<void> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') await api.delete(`/roles/${id}`)
+    roles = roles.filter((role) => String(role.id) !== String(id))
   },
 }

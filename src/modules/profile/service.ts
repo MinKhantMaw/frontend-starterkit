@@ -1,20 +1,33 @@
-import api from '@/libs/http'
+import api from '@/api/http'
+import type { ChangePasswordPayload, Profile, ProfilePayload } from '@/modules/profile/types'
 
-export interface ProfilePayload {
-  name: string
-  email: string
-  phone: string
-  avatar?: File
+let profile: Profile = {
+  id: 1,
+  name: 'Enterprise Admin',
+  email: 'admin@example.com',
+  phone: '+1 555 0100',
+  jobTitle: 'System Administrator',
 }
 
 export const profileService = {
-  update(payload: ProfilePayload) {
-    const data = new FormData()
-    data.append('name', payload.name)
-    data.append('email', payload.email)
-    data.append('phone', payload.phone)
-    if (payload.avatar) data.append('avatar', payload.avatar)
-    data.append('_method', 'PUT')
-    return api.post('/profile', data)
+  async get(): Promise<Profile> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.get<{ data?: Profile } | Profile>('/profile')
+      return ((data as { data?: Profile }).data ?? data) as Profile
+    }
+    return profile
+  },
+  async update(payload: ProfilePayload): Promise<Profile> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.put<{ data?: Profile } | Profile>('/profile', payload)
+      return ((data as { data?: Profile }).data ?? data) as Profile
+    }
+    profile = { ...profile, ...payload }
+    return profile
+  },
+  async changePassword(payload: ChangePasswordPayload): Promise<void> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      await api.put('/profile/password', payload)
+    }
   },
 }

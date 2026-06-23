@@ -10,6 +10,7 @@ import 'primeicons/primeicons.css'
 import './assets/main.css'
 import App from './App.vue'
 import router from './router'
+import { registerGlobalErrorHandler } from './utils/errorHandler'
 
 const app = createApp(App)
 
@@ -23,7 +24,8 @@ app.use(PrimeVue, {
 })
 app.use(ToastService)
 app.use(ConfirmationService)
-// Legacy user/role screens are incrementally migrated; keep their renderer active.
 app.use(ElementPlus)
+
+registerGlobalErrorHandler(app)
 
 app.mount('#app')

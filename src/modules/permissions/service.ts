@@ -1,35 +1,23 @@
-import api from '@/libs/http'
-import type { Permission } from '@/libs/types'
+import api from '@/api/http'
+import { PERMISSIONS } from '@/constants/permissions'
+import type { PaginatedResponse } from '@/types/api'
+import type { PermissionFilters, PermissionRecord } from '@/modules/permissions/types'
 
-type PermissionListResponse =
-  | Permission[]
-  | { data?: Permission[]; permissions?: Permission[]; items?: Permission[] }
-  | { data?: { items?: Permission[] } }
+const permissions: PermissionRecord[] = Object.values(PERMISSIONS).map((name, index) => ({
+  id: index + 1,
+  name,
+  module: name.split('.')[0],
+}))
 
-export const permissionsApi = {
-  async list() {
-    const { data } = await api.get<PermissionListResponse>('/permissions')
-
-    if (Array.isArray(data)) {
+export const permissionService = {
+  async list(params: PermissionFilters = {}): Promise<PaginatedResponse<PermissionRecord>> {
+    if (import.meta.env.VITE_USE_MOCKS === 'false') {
+      const { data } = await api.get<PaginatedResponse<PermissionRecord>>('/permissions', { params })
       return data
     }
 
-    if ('items' in data && Array.isArray(data.items)) {
-      return data.items
-    }
-
-    if ('data' in data && Array.isArray(data.data)) {
-      return data.data
-    }
-
-    if ('permissions' in data && Array.isArray(data.permissions)) {
-      return data.permissions
-    }
-
-    if ('data' in data && data.data && typeof data.data === 'object' && Array.isArray((data.data as { items?: Permission[] }).items)) {
-      return (data.data as { items?: Permission[] }).items
-    }
-
-    return []
+    const search = params.search?.toLowerCase()
+    const data = search ? permissions.filter((permission) => permission.name.toLowerCase().includes(search)) : permissions
+    return { data, meta: { page: 1, perPage: 50, total: data.length } }
   },
 }

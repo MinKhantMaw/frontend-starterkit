@@ -1,73 +1,113 @@
-# Nexus CMS Admin
+# Enterprise Vue 3 Admin Starter Kit
 
-Enterprise CMS administration frontend for the Laravel API. Built with Vue 3, strict TypeScript, Vite, Pinia, Vue Router, Axios, TailwindCSS, and PrimeVue.
+Reusable frontend foundation for ERP, CRM, estate management, inventory management, HR management, accounting systems, and other internal business applications.
 
-## Start
+This is not a CMS. It intentionally excludes settings, posts, pages, categories, tags, media library, and notifications modules.
 
-```bash
-npm install
-cp .env.example .env
-npm run dev
-```
+## Tech Stack
 
-The development server proxies `/api` to `http://localhost:8000`. Set `VITE_API_BASE_URL` when the API runs elsewhere.
-
-```bash
-npm run type-check
-npm run lint
-npm run build
-```
+- Vue 3
+- JavaScript
+- Vite
+- Pinia
+- Vue Router
+- Axios
+- TailwindCSS
+- PrimeVue
 
 ## Architecture
 
 ```text
 src/
-├── assets/                      # Global styles and static assets
-├── components/                  # Shared UI components only
-├── constants/                   # Shared constants, when needed
-├── layouts/                     # Shared application shells
-├── libs/                        # HTTP, generic services, composables and utilities
-├── modules/
-│   ├── auth/
-│   │   ├── login/
-│   │   │   ├── Login.vue
-│   │   │   └── useLogin.ts
-│   │   ├── forgot-password/
-│   │   ├── reset-password/
-│   │   ├── route.ts
-│   │   ├── service.ts
-│   │   └── store.ts
-│   ├── users/
-│   │   ├── list/
-│   │   │   ├── List.vue
-│   │   │   └── useList.ts
-│   │   ├── create/
-│   │   ├── edit/
-│   │   ├── detail/
-│   │   ├── route.ts
-│   │   ├── service.ts
-│   │   └── store.ts
-│   └── ...                      # Remaining business modules follow the same pattern
-└── router/                      # Composes module routes and applies global guards
+├── assets/
+├── components/
+├── constants/
+├── layouts/
+├── libs/
+├── menu/
+└── modules/
 ```
 
-Business code belongs to the module that owns it. Each routed operation has a thin
-Vue component and an adjacent dedicated composable such as `list/List.vue` and
-`list/useList.ts`. Vue files contain templates, component imports, props/emits, and
-composable bindings only. Composables own screen orchestration, module stores own
-domain state, and module services are the only API boundary. Modules expose route
-records to the central router. Cross-module code must be genuinely reusable before
-it is promoted to `components`, `layouts`, `libs`, or `constants`.
+Included modules:
 
-## API behavior
+```text
+modules/
+├── auth/
+├── dashboard/
+├── users/
+├── roles/
+├── permissions/
+├── profile/
+└── activityLogs/
+```
 
-`src/libs/http.ts` attaches bearer tokens, tracks global request state, normalizes API errors, redirects expired sessions, and uses `/api/v1/admin` by default. The generic `ResourceService` accepts both Laravel resource envelopes and plain JSON payloads. File forms use `multipart/form-data` and method spoofing for Laravel PUT endpoints.
+Feature modules keep the same structure:
 
-Every protected route uses `requiresAuth`; feature routes additionally declare permission metadata. The same permission filter drives the sidebar. A `Super Admin` role bypasses granular permission checks.
+```text
+modules/users/
+├── create/
+│   ├── Create.vue
+│   └── useCreate.js
+├── edit/
+│   ├── Edit.vue
+│   └── useEdit.js
+├── detail/
+│   ├── Detail.vue
+│   └── useDetail.js
+├── list/
+│   ├── List.vue
+│   └── useList.js
+├── route.js
+├── service.js
+└── store.js
+```
 
-## Main routes
+## Rules
 
-- Authentication: `/login`, `/forgot-password`, `/reset-password`, `/profile`
-- Content: `/pages`, `/posts`, `/categories`, `/tags`, `/media`, `/menus`
-- Access: `/users`, `/roles`, `/permissions`
-- Operations: `/contact-messages`, `/notifications`, `/activity-logs`, `/settings`
+- Vue files stay focused on UI.
+- Business logic lives in `useList.js`, `useCreate.js`, `useEdit.js`, and `useDetail.js`.
+- API calls live in `service.js`.
+- Pinia state lives in `store.js`.
+- Route records live in `route.js`.
+- Shared components live in `src/components`.
+- Shared utilities live in `src/libs`.
+- Shared layouts live in `src/layouts`.
+
+## Included Foundation
+
+- Authentication: login, forgot password, reset password, logout
+- Authorization: permission-based menus, routes, and buttons
+- Layouts: `AuthLayout`, `AdminLayout`
+- Dashboard: total users, total roles, total permissions
+- Users CRUD
+- Roles CRUD
+- Permissions list
+- Profile management
+- Activity logs list
+- Axios instance
+- Route guards
+- Permission guards
+- Global error handler
+- Toast notifications
+- Loading overlay
+
+## Reusable Components
+
+- `BaseTable`
+- `BaseForm`
+- `BaseModal`
+- `BaseDrawer`
+- `BasePagination`
+- `BaseFilter`
+- `BaseConfirmDialog`
+- `PermissionGuard`
+- `PermissionButton`
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Services use local mock data by default. Set `VITE_USE_MOCKS=false` to call backend API endpoints.

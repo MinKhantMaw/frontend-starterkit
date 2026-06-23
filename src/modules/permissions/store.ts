@@ -1,27 +1,29 @@
 import { defineStore } from 'pinia'
-import { permissionsApi } from '@/modules/permissions/service'
-import type { Permission } from '@/libs/types'
-import { groupPermissionName } from '@/libs/permissions'
+import { permissionService } from './service'
+import type { PaginationMeta } from '@/types/api'
+import type { PermissionFilters, PermissionRecord } from '@/modules/permissions/types'
 
 export const usePermissionStore = defineStore('permissions', {
   state: () => ({
-    permissions: [] as Permission[],
+    items: [] as PermissionRecord[],
+    meta: { page: 1, perPage: 50, total: 0 } as PaginationMeta,
     loading: false,
   }),
   getters: {
-    grouped: (state) =>
-      state.permissions.reduce<Record<string, Permission[]>>((groups, permission) => {
-        const module = permission.module || groupPermissionName(permission.name)
-        groups[module] = groups[module] ?? []
-        groups[module].push(permission)
+    grouped: (state): Record<string, PermissionRecord[]> =>
+      state.items.reduce<Record<string, PermissionRecord[]>>((groups, permission) => {
+        groups[permission.module] = groups[permission.module] || []
+        groups[permission.module].push(permission)
         return groups
       }, {}),
   },
   actions: {
-    async fetchPermissions() {
+    async fetchPermissions(params: PermissionFilters = {}): Promise<void> {
       this.loading = true
       try {
-        this.permissions = await permissionsApi.list() ?? []
+        const response = await permissionService.list(params)
+        this.items = response.data
+        this.meta = response.meta
       } finally {
         this.loading = false
       }
