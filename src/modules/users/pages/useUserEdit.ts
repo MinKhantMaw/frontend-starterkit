@@ -20,7 +20,7 @@ export function useEdit() {
     phone: '',
     password: '',
     password_confirmation: '',
-    role: 'operator',
+    role_ids: [3],
     status: 'active',
   })
   const id = String(route.params.id)
@@ -28,6 +28,9 @@ export function useEdit() {
   onMounted(async () => {
     await users.fetchUser(id)
     Object.assign(form, users.current || {})
+    form.role_ids = users.current?.role_ids?.length ? users.current.role_ids : users.current?.role_id ? [users.current.role_id] : form.role_ids
+    form.password = ''
+    form.password_confirmation = ''
   })
 
   async function submit(formRef?: FormInstance) {

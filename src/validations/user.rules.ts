@@ -14,28 +14,23 @@ export const userCreateRules: FormRules = {
     { required: true, message: 'Email is required', trigger: 'blur' },
     { type: 'email', message: 'Enter a valid email address', trigger: 'blur' },
   ],
-  phone: [
-    { required: true, message: 'Phone is required', trigger: 'blur' },
-    { min: 11, max: 20, message: 'Phone must be 11 to 20 characters', trigger: 'blur' },
-  ],
   password: [
     { required: true, message: 'Password is required', trigger: 'blur' },
-    { min: 6, max: 15, message: 'Password must be 6 to 15 characters', trigger: 'blur' },
+    { min: 6, message: 'Password must be at least 6 characters', trigger: 'blur' },
   ],
   password_confirmation: [
     { required: true, message: 'Password confirmation is required', trigger: 'blur' },
     { validator: matchesPassword, trigger: 'blur' },
   ],
-  role: [{ required: true, message: 'Role is required', trigger: 'change' }],
+  role_ids: [{ type: 'array', required: true, min: 1, message: 'Select at least one role', trigger: 'change' }],
   status: [{ required: true, message: 'Status is required', trigger: 'change' }],
 }
 
 export const userUpdateRules: FormRules = {
   name: userCreateRules.name,
   email: userCreateRules.email,
-  phone: userCreateRules.phone,
-  password: [{ min: 6, max: 15, message: 'Password must be 6 to 15 characters', trigger: 'blur' }],
+  password: [{ min: 6, message: 'Password must be at least 6 characters', trigger: 'blur' }],
   password_confirmation: [{ validator: matchesPassword, trigger: 'blur' }],
-  role: userCreateRules.role,
+  role_ids: userCreateRules.role_ids,
   status: userCreateRules.status,
 }

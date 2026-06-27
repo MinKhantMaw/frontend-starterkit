@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import type { FormInstance } from 'element-plus'
 import { useFormErrors } from '@/composables/useFormErrors'
 import { useAuthStore } from '@/modules/auth/store'
-import { mapBackendErrorsToForm } from '@/utils/errorHandler'
+import { getApiErrorMessage, mapBackendErrorsToForm } from '@/utils/errorHandler'
 import { notifyError } from '@/utils/notify'
 import { loginRules } from '@/validations/auth.rules'
 import type { LoginPayload } from '@/types/auth'
@@ -21,6 +21,8 @@ export function useLogin() {
   })
 
   async function submit(formRef?: FormInstance) {
+    if (auth.loading) return
+
     clearErrors()
     if (!(await formRef?.validate().catch(() => false))) return
 
@@ -29,7 +31,7 @@ export function useLogin() {
       router.push(route.query.redirect ? String(route.query.redirect) : { name: 'dashboard' })
     } catch (error) {
       if (!mapBackendErrorsToForm(error, formRef, setErrors)) {
-        notifyError('Login failed')
+        notifyError(getApiErrorMessage(error, 'Invalid email or password'))
       }
     }
   }

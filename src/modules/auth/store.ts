@@ -37,6 +37,8 @@ export const useAuthStore = defineStore('auth', {
       return hasPermission(this.permissions, this.roles, required)
     },
     async login(payload: LoginPayload): Promise<void> {
+      if (this.loading) return
+
       this.loading = true
       try {
         const response = await authService.login(payload)

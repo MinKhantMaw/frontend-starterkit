@@ -19,8 +19,8 @@ export function useCreate() {
     phone: '',
     password: '',
     password_confirmation: '',
-    role: 'operator',
-    status: 'invited',
+    role_ids: [3],
+    status: 'active',
   })
 
   async function submit(formRef?: FormInstance) {

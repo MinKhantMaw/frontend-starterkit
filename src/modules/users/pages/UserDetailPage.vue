@@ -11,7 +11,7 @@ const { users } = useDetail()
 <template>
   <PageHeader title="User Detail" description="Account profile and access attributes.">
     <template #actions>
-      <PermissionGuard :permission="PERMISSIONS.USERS_UPDATE">
+      <PermissionGuard :permission="PERMISSIONS.USER_UPDATE">
         <RouterLink v-if="users.current" :to="`/users/${users.current.id}/edit`">
           <Button label="Edit" icon="pi pi-pencil" />
         </RouterLink>

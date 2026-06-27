@@ -1,23 +1,20 @@
 import api from '@/api/http'
 import { ROLE_PERMISSIONS } from '@/constants/permissions'
+import type { ApiResponse } from '@/types/api'
 import type { AuthResponse, AuthUser, LoginPayload } from '@/types/auth'
 
 const demoUser: AuthUser = {
   id: 1,
   name: 'Enterprise Admin',
   email: 'admin@example.com',
-  roles: ['super_admin'],
+  roles: ['Super Admin'],
   permissions: ROLE_PERMISSIONS.super_admin,
 }
 
 export const authService = {
   async login(payload: LoginPayload): Promise<AuthResponse> {
-    if (import.meta.env.VITE_USE_MOCKS === 'false') {
-      const { data } = await api.post<AuthResponse>('/auth/login', payload)
-      return data
-    }
-
-    return { token: 'demo-token', user: demoUser }
+    const { data } = await api.post<ApiResponse<AuthResponse> | AuthResponse>('/auth/login', payload)
+    return ((data as ApiResponse<AuthResponse>).data ?? data) as AuthResponse
   },
 
   async profile(): Promise<AuthUser> {

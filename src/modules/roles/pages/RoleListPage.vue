@@ -16,7 +16,7 @@ const { roles, filters, columns, load, resetFilters, confirmDelete } = useList()
 <template>
   <PageHeader title="Roles" description="Create reusable access roles for enterprise modules.">
     <template #actions>
-      <PermissionGuard :permission="PERMISSIONS.ROLES_CREATE">
+      <PermissionGuard :permission="PERMISSIONS.ROLE_CREATE">
         <RouterLink to="/roles/create">
           <Button label="Create Role" icon="pi pi-plus" />
         </RouterLink>
@@ -40,12 +40,12 @@ const { roles, filters, columns, load, resetFilters, confirmDelete } = useList()
           <RouterLink :to="`/roles/${data.id}`">
             <Button icon="pi pi-eye" text rounded severity="secondary" aria-label="View" />
           </RouterLink>
-          <PermissionGuard :permission="PERMISSIONS.ROLES_UPDATE">
+          <PermissionGuard :permission="PERMISSIONS.ROLE_UPDATE">
             <RouterLink :to="`/roles/${data.id}/edit`">
               <Button icon="pi pi-pencil" text rounded severity="secondary" aria-label="Edit" />
             </RouterLink>
           </PermissionGuard>
-          <PermissionButton :permission="PERMISSIONS.ROLES_DELETE" icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
+          <PermissionButton :permission="PERMISSIONS.ROLE_DELETE" icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
         </div>
       </template>
     </Column>

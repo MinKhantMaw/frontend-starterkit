@@ -6,8 +6,8 @@ import type { Role, RoleFilters, RolePayload } from '@/modules/roles/types'
 let roles: Role[] = [
   { id: 1, name: 'Super Admin', key: 'super_admin', permissions: ROLE_PERMISSIONS.super_admin },
   { id: 2, name: 'Admin', key: 'admin', permissions: ROLE_PERMISSIONS.admin },
-  { id: 3, name: 'Manager', key: 'manager', permissions: ROLE_PERMISSIONS.manager },
-  { id: 4, name: 'Operator', key: 'operator', permissions: ROLE_PERMISSIONS.operator },
+  { id: 3, name: 'Editor', key: 'editor', permissions: ROLE_PERMISSIONS.editor },
+  { id: 4, name: 'Viewer', key: 'viewer', permissions: ROLE_PERMISSIONS.viewer },
 ]
 
 export const roleService = {
@@ -17,7 +17,7 @@ export const roleService = {
       return data
     }
     const search = params.search?.toLowerCase()
-    const data = search ? roles.filter((role) => [role.name, role.key].some((value) => value.toLowerCase().includes(search))) : roles
+    const data = search ? roles.filter((role) => [role.name, role.key].some((value) => value?.toLowerCase().includes(search))) : roles
     return { data, meta: { page: 1, perPage: 10, total: data.length } }
   },
   async find(id: string | number): Promise<Role | undefined> {

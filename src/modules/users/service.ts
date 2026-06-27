@@ -3,9 +3,9 @@ import type { PaginatedResponse } from '@/types/api'
 import type { User, UserCreatePayload, UserFilters, UserUpdatePayload } from '@/modules/users/types'
 
 let users: User[] = [
-  { id: 1, name: 'Enterprise Admin', email: 'admin@example.com', role: 'admin', status: 'active', phone: '+1 555 0100' },
-  { id: 2, name: 'Operations Manager', email: 'manager@example.com', role: 'manager', status: 'active', phone: '+1 555 0101' },
-  { id: 3, name: 'Front Desk Operator', email: 'operator@example.com', role: 'operator', status: 'invited', phone: '+1 555 0102' },
+  { id: 1, name: 'Enterprise Admin', email: 'admin@example.com', role_id: 1, role_ids: [1], role: 'Super Admin', roles: ['Super Admin'], status: 'active', phone: '+1 555 0100' },
+  { id: 2, name: 'Operations Editor', email: 'editor@example.com', role_id: 3, role_ids: [3], role: 'Editor', roles: ['Editor'], status: 'active', phone: '+1 555 0101' },
+  { id: 3, name: 'Front Desk Viewer', email: 'viewer@example.com', role_id: 4, role_ids: [4], role: 'Viewer', roles: ['Viewer'], status: 'inactive', phone: '+1 555 0102' },
 ]
 
 function paginate(items: User[], page: number, perPage: number): PaginatedResponse<User> {
@@ -17,7 +17,7 @@ function filterUsers(params: UserFilters = {}): User[] {
   return users.filter((user) => {
     const search = params.search?.toLowerCase()
     const matchesSearch = !search || [user.name, user.email, user.phone].some((value) => value?.toLowerCase().includes(search))
-    const matchesRole = !params.role || user.role === params.role
+    const matchesRole = !params.role || user.roles?.includes(params.role) || user.role === params.role
     const matchesStatus = !params.status || user.status === params.status
     return matchesSearch && matchesRole && matchesStatus
   })

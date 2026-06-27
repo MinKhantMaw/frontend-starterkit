@@ -6,8 +6,8 @@ defineProps<{
   rules: FormRules
   loading?: boolean
   submitLabel: string
-  roleOptions: readonly { label: string; value: string }[]
-  statusOptions: readonly { label: string; value: string }[]
+  roleOptions: readonly { label: string; value: string | number }[]
+  statusOptions: readonly { label: string; value: string | number }[]
   getError: (field: string) => string
 }>()
 
@@ -41,8 +41,8 @@ const model = defineModel<UserCreatePayload | UserUpdatePayload>('model', { requ
         </el-form-item>
       </div>
       <div class="grid gap-4 md:grid-cols-2">
-        <el-form-item label="Role" prop="role" :error="getError('role')">
-          <el-select v-model="model.role" class="w-full">
+        <el-form-item label="Roles" prop="role_ids" :error="getError('role_ids')">
+          <el-select v-model="model.role_ids" class="w-full" multiple collapse-tags collapse-tags-tooltip>
             <el-option v-for="role in roleOptions" :key="role.value" :label="role.label" :value="role.value" />
           </el-select>
         </el-form-item>

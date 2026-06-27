@@ -18,7 +18,7 @@ const { users, filters, columns, pagination, roleOptions, statusOptions, load, a
 <template>
   <PageHeader title="Users" description="Reusable user administration CRUD pattern.">
     <template #actions>
-      <PermissionGuard :permission="PERMISSIONS.USERS_CREATE">
+      <PermissionGuard :permission="PERMISSIONS.USER_CREATE">
         <RouterLink to="/users/create">
           <Button label="Create User" icon="pi pi-plus" />
         </RouterLink>
@@ -41,12 +41,12 @@ const { users, filters, columns, pagination, roleOptions, statusOptions, load, a
           <RouterLink :to="`/users/${data.id}`">
             <Button icon="pi pi-eye" text rounded severity="secondary" aria-label="View" />
           </RouterLink>
-          <PermissionGuard :permission="PERMISSIONS.USERS_UPDATE">
+          <PermissionGuard :permission="PERMISSIONS.USER_UPDATE">
             <RouterLink :to="`/users/${data.id}/edit`">
               <Button icon="pi pi-pencil" text rounded severity="secondary" aria-label="Edit" />
             </RouterLink>
           </PermissionGuard>
-          <PermissionButton :permission="PERMISSIONS.USERS_DELETE" icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
+          <PermissionButton :permission="PERMISSIONS.USER_DELETE" icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
         </div>
       </template>
     </Column>

@@ -15,7 +15,7 @@ export function useEdit() {
   const roles = useRoleStore()
   const permissions = usePermissionStore()
   const { errors, setErrors, clearErrors, getError, hasError } = useFormErrors()
-  const form = reactive<RolePayload>({ name: '', key: '', permissions: [] })
+  const form = reactive<RolePayload>({ name: '', permissions: [] })
   const id = String(route.params.id)
 
   const groupedPermissions = computed(() => permissions.grouped)

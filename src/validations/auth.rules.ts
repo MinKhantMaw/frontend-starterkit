@@ -5,7 +5,10 @@ export const loginRules: FormRules = {
     { required: true, message: 'Email is required', trigger: 'blur' },
     { type: 'email', message: 'Enter a valid email address', trigger: 'blur' },
   ],
-  password: [{ required: true, message: 'Password is required', trigger: 'blur' }],
+  password: [
+    { required: true, message: 'Password is required', trigger: 'blur' },
+    { min: 6, message: 'Password must be at least 6 characters', trigger: 'blur' },
+  ],
 }
 
 export const forgotPasswordRules: FormRules = {

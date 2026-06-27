@@ -1,11 +1,14 @@
-export type UserStatus = 'active' | 'inactive' | 'invited'
+export type UserStatus = 'active' | 'inactive'
 
 export interface User {
   id: number
   name: string
   email: string
   phone?: string
-  role: string
+  role_id?: number | string
+  role_ids?: Array<number | string>
+  role?: string
+  roles?: string[]
   status: UserStatus
 }
 
@@ -15,7 +18,7 @@ export interface UserCreatePayload {
   phone: string
   password: string
   password_confirmation: string
-  role: string
+  role_ids: Array<number | string>
   status: UserStatus
 }
 
@@ -25,7 +28,7 @@ export interface UserUpdatePayload {
   phone: string
   password?: string
   password_confirmation?: string
-  role: string
+  role_ids: Array<number | string>
   status: UserStatus
 }
 
