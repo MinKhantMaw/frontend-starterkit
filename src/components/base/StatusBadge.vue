@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
-const props = defineProps<{
-  status?: string
-}>()
+const props = defineProps({
+  status: { type: String, default: '' },
+})
 
 const tone = computed(() => {
   const status = props.status?.toLowerCase()

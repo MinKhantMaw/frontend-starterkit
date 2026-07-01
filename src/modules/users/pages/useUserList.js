@@ -1,21 +1,28 @@
 import { computed, onMounted, reactive } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useUserStore } from '@/modules/users/store'
-import { ROLE_OPTIONS, USER_STATUSES } from '@/constants/app'
+import { useRoleStore } from '@/modules/roles/store'
+import { USER_STATUSES } from '@/constants/app'
 
 export function useList() {
   const confirm = useConfirm()
   const users = useUserStore()
-  const filters = reactive({ page: 1, perPage: 15, search: '', role: '', status: '' })
+  const roleStore = useRoleStore()
+  const filters = reactive({ page: 1, perPage: 15, search: '', role_id: '', status: '' })
 
   const columns = [
     { field: 'name', header: 'Name', sortable: true },
     { field: 'email', header: 'Email' },
     { field: 'role', header: 'Role' },
-    { field: 'status', header: 'Status' },
   ]
 
   const pagination = computed(() => users.meta || {})
+  const roleOptions = computed(() =>
+    roleStore.roles.map((role) => ({
+      label: role.name,
+      value: role.id,
+    })),
+  )
 
   async function load(page = filters.page, perPage = filters.perPage) {
     filters.page = page
@@ -30,7 +37,7 @@ export function useList() {
 
   function resetFilters() {
     filters.search = ''
-    filters.role = ''
+    filters.role_id = ''
     filters.status = ''
     load(1, filters.perPage)
   }
@@ -48,7 +55,10 @@ export function useList() {
     })
   }
 
-  onMounted(() => load())
+  onMounted(() => {
+    load()
+    roleStore.fetchRoles()
+  })
 
-  return { users, filters, columns, pagination, roleOptions: ROLE_OPTIONS, statusOptions: USER_STATUSES, load, applyFilters, resetFilters, confirmDelete }
+  return { users, filters, columns, pagination, roleOptions, statusOptions: USER_STATUSES, load, applyFilters, resetFilters, confirmDelete }
 }

@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import Button from 'primevue/button'
 import Menu from 'primevue/menu'
 import { ref } from 'vue'
 
-const menu = ref<InstanceType<typeof Menu> | null>(null)
+const menu = ref(null)
 
 const items = [
   { label: 'No new notifications', icon: 'pi pi-check-circle', disabled: true },

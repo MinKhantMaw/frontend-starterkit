@@ -9,6 +9,7 @@ import BaseTable from '@/components/base/BaseTable.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import PermissionButton from '@/components/base/BaseButton.vue'
 import PermissionGuard from '@/components/common/PermissionGuard.vue'
+import StatusBadge from '@/components/base/StatusBadge.vue'
 import { PERMISSIONS } from '@/constants/permissions'
 import { useList } from './useUserList'
 
@@ -30,10 +31,16 @@ const { users, filters, columns, pagination, roleOptions, statusOptions, load, a
     <template #filters>
       <BaseFilter @apply="applyFilters" @reset="resetFilters">
         <InputText v-model="filters.search" placeholder="Search users" />
-        <Select v-model="filters.role" :options="roleOptions" option-label="label" option-value="value" placeholder="Role" show-clear />
+        <Select v-model="filters.role_id" :options="roleOptions" option-label="label" option-value="value" placeholder="Role" show-clear />
         <Select v-model="filters.status" :options="statusOptions" option-label="label" option-value="value" placeholder="Status" show-clear />
       </BaseFilter>
     </template>
+
+    <Column header="Status" class="w-36">
+      <template #body="{ data }">
+        <StatusBadge :status="data.status" />
+      </template>
+    </Column>
 
     <Column header="Actions" class="w-44">
       <template #body="{ data }">

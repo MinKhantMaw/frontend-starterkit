@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import UserForm from '@/modules/users/components/UserForm.vue'
 import { useEdit } from './useUserEdit'
 
