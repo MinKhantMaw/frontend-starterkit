@@ -126,5 +126,18 @@ export const useUserStore = defineStore('users', {
         throw error
       }
     },
+
+    async updateStatus(id, status) {
+      this.saving = true
+      try {
+        const response = await userService.updateStatus(id, status)
+        const updatedUser = normalizeUser(unwrapData(response))
+        this.users = this.users.map((item) => (String(item.id) === String(id) ? { ...item, ...updatedUser } : item))
+        if (this.current && String(this.current.id) === String(id)) this.current = updatedUser
+        notifySuccess('User status updated')
+      } finally {
+        this.saving = false
+      }
+    },
   },
 })

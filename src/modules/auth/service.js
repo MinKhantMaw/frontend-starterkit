@@ -26,6 +26,10 @@ export const authService = {
     await api.post('/auth/logout')
   },
 
+  async logoutAll() {
+    await api.post('/auth/logout-all')
+  },
+
   async forgotPassword(payload) {
     return (await api.post('/auth/forgot-password', payload)).data
   },

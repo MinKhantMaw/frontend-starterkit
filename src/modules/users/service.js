@@ -17,6 +17,10 @@ export const userService = {
     return api.put(`/users/${id}`, payload)
   },
 
+  updateStatus(id, status) {
+    return api.patch(`/users/${id}/status`, { status })
+  },
+
   remove(id) {
     return api.delete(`/users/${id}`)
   },

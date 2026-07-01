@@ -31,7 +31,13 @@ export function useLogin() {
         }
         catch (error) {
             if (!mapBackendErrorsToForm(error, formRef, setErrors)) {
-                notifyError(getApiErrorMessage(error, 'Invalid email or password'));
+                const status = error.response?.status;
+                const fallback = status === 429
+                    ? 'Too many login attempts. Please wait a minute and try again.'
+                    : status === 403
+                        ? 'Your account is inactive. Please contact administrator.'
+                        : 'Invalid email or password';
+                notifyError(getApiErrorMessage(error, fallback));
             }
         }
     }

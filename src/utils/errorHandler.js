@@ -1,4 +1,3 @@
-import { ElMessage } from 'element-plus';
 import { tokenStorage } from '@/api/tokenStorage';
 import { notifyError } from '@/utils/notify';
 export function registerGlobalErrorHandler(app) {
@@ -25,7 +24,7 @@ export function mapBackendErrorsToForm(error, formRef, setErrors) {
     });
     const firstMessage = Object.values(errors)[0]?.[0];
     if (firstMessage)
-        ElMessage.error(firstMessage);
+        notifyError(firstMessage, 'Validation error');
     return true;
 }
 export function handleApiError(error, router) {
@@ -39,9 +38,23 @@ export function handleApiError(error, router) {
     }
     if (status === 403) {
         router?.push({ name: 'forbidden' });
+        notifyError(getApiErrorMessage(error, 'You do not have permission to perform this action.'), 'Forbidden');
         return;
     }
-    if (status !== 422) {
-        ElMessage.error(getApiErrorMessage(error));
+    if (status === 429) {
+        notifyError(getApiErrorMessage(error, 'Too many requests. Please wait and try again.'), 'Rate limit exceeded');
+        return;
     }
+    if (status === 404) {
+        notifyError(getApiErrorMessage(error, 'The requested resource was not found.'));
+        return;
+    }
+    if (status === 422) {
+        return;
+    }
+    if (status >= 500) {
+        notifyError(getApiErrorMessage(error, 'Something went wrong on the server.'));
+        return;
+    }
+    notifyError(getApiErrorMessage(error));
 }

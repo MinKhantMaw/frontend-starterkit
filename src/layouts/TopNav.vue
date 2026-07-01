@@ -8,6 +8,7 @@ import Breadcrumb from '@/components/common/Breadcrumb.vue'
 import NotificationDropdown from '@/components/common/NotificationDropdown.vue'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/modules/auth/store'
+import { useConfirmAction } from '@/composables/useConfirmAction'
 
 defineProps({
   collapsed: { type: Boolean, default: false },
@@ -18,6 +19,7 @@ defineEmits(['toggle-sidebar'])
 const router = useRouter()
 const auth = useAuthStore()
 const app = useAppStore()
+const { confirmAction } = useConfirmAction()
 const menu = ref()
 const displayName = computed(() => auth.user?.name || 'User')
 const displayEmail = computed(() => auth.user?.email || '')
@@ -32,9 +34,17 @@ const userMenu = [
   {
     label: 'Logout',
     icon: 'pi pi-sign-out',
-    command: async () => {
-      await auth.logout()
-      router.push({ name: 'login' })
+    command: () => {
+      confirmAction({
+        message: 'Sign out of this session?',
+        header: 'Logout',
+        acceptLabel: 'Logout',
+        acceptClass: 'p-button-danger',
+        onAccept: async () => {
+          await auth.logout()
+          router.push({ name: 'login' })
+        },
+      })
     },
   },
 ]

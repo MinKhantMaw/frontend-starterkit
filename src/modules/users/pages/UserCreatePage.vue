@@ -2,7 +2,7 @@
 import UserForm from '@/modules/users/components/UserForm.vue'
 import { useCreate } from './useUserCreate'
 
-const { users, form, rules, roleOptions, statusOptions, getError, submit, cancel } = useCreate()
+const { users, form, rules, roleOptions, statusOptions, getError, clearError, submit, cancel } = useCreate()
 </script>
 
 <template>
@@ -14,6 +14,7 @@ const { users, form, rules, roleOptions, statusOptions, getError, submit, cancel
     :role-options="roleOptions"
     :status-options="statusOptions"
     :get-error="getError"
+    :clear-error="clearError"
     @submit="submit"
     @cancel="cancel"
   />

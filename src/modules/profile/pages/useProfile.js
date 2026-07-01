@@ -15,7 +15,7 @@ export function useDetail() {
   const router = useRouter()
   const auth = useAuthStore()
   const profile = useProfileStore()
-  const { errors, setErrors, clearErrors, getError, hasError } = useFormErrors()
+  const { errors, setErrors, clearErrors, clearError, getError, hasError } = useFormErrors()
   const form = reactive({ name: '', email: '', phone: '', jobTitle: '' })
   const avatarPreview = ref('')
   const canUpdate = computed(() => auth.hasPermission(PERMISSIONS.PROFILE_UPDATE))
@@ -75,6 +75,7 @@ export function useDetail() {
     form,
     errors,
     getError,
+    clearError,
     hasError,
     rules: profileRules,
     canUpdate,

@@ -2,7 +2,7 @@
 import ProfileForm from '@/modules/profile/components/ProfileForm.vue'
 import { useDetail } from './useProfile.js'
 
-const { profile, form, rules, getError, canUpdate, avatarUrl, submit, uploadAvatar, cancel } = useDetail()
+const { profile, form, rules, getError, clearError, canUpdate, avatarUrl, submit, uploadAvatar, cancel } = useDetail()
 </script>
 
 <template>
@@ -14,6 +14,7 @@ const { profile, form, rules, getError, canUpdate, avatarUrl, submit, uploadAvat
     :avatar-loading="profile.uploadingAvatar"
     :can-submit="canUpdate"
     :get-error="getError"
+    :clear-error="clearError"
     @submit="submit"
     @upload-avatar="uploadAvatar"
     @cancel="cancel"

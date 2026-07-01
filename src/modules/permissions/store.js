@@ -12,6 +12,17 @@ function unwrapData(response) {
   return response?.data?.data ?? {}
 }
 
+function normalizeMeta(meta, itemCount = 0) {
+  return {
+    ...defaultMeta,
+    ...(meta || {}),
+    total: Number(meta?.total ?? itemCount),
+    current_page: Number(meta?.current_page ?? meta?.page ?? defaultMeta.current_page),
+    per_page: Number(meta?.per_page ?? meta?.perPage ?? defaultMeta.per_page),
+    last_page: Number(meta?.last_page ?? defaultMeta.last_page),
+  }
+}
+
 function normalizePermissionItems(payload) {
   if (Array.isArray(payload.items)) return payload.items
 
@@ -58,7 +69,7 @@ export const usePermissionStore = defineStore('permissions', {
         const payload = unwrapData(response)
 
         this.permissions = normalizePermissionItems(payload)
-        this.meta = payload.meta ?? { ...defaultMeta }
+        this.meta = normalizeMeta(payload.meta, this.permissions.length)
       } finally {
         this.loading = false
       }

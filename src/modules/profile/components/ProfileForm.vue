@@ -8,6 +8,7 @@ defineProps({
   avatarUrl: { type: String, default: '' },
   canSubmit: { type: Boolean, default: false },
   getError: { type: Function, required: true },
+  clearError: { type: Function, default: () => {} },
 })
 
 const emit = defineEmits(['submit', 'upload-avatar', 'cancel'])
@@ -37,16 +38,16 @@ const model = defineModel('model', { required: true })
       </div>
 
       <el-form-item label="Name" prop="name" :error="getError('name')">
-        <el-input v-model="model.name" />
+        <el-input v-model="model.name" @input="clearError('name')" />
       </el-form-item>
       <el-form-item label="Email" prop="email" :error="getError('email')">
-        <el-input v-model="model.email" type="email" />
+        <el-input v-model="model.email" type="email" @input="clearError('email')" />
       </el-form-item>
       <el-form-item label="Phone" prop="phone" :error="getError('phone')">
-        <el-input v-model="model.phone" />
+        <el-input v-model="model.phone" @input="clearError('phone')" />
       </el-form-item>
       <el-form-item label="Job Title" prop="jobTitle" :error="getError('jobTitle')">
-        <el-input v-model="model.jobTitle" />
+        <el-input v-model="model.jobTitle" @input="clearError('jobTitle')" />
       </el-form-item>
       <div class="flex justify-end gap-2">
         <el-button @click="emit('cancel')">Cancel</el-button>

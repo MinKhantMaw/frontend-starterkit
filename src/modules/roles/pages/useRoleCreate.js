@@ -10,7 +10,7 @@ export function useCreate() {
     const router = useRouter();
     const roles = useRoleStore();
     const permissions = usePermissionStore();
-    const { errors, setErrors, clearErrors, getError, hasError } = useFormErrors();
+    const { errors, setErrors, clearErrors, clearError, getError, hasError } = useFormErrors();
     const form = reactive({ name: '', permissions: [] });
     const groupedPermissions = computed(() => permissions.grouped);
     onMounted(() => permissions.fetchPermissions());
@@ -31,5 +31,5 @@ export function useCreate() {
     function cancel() {
         router.push({ name: 'roles.list' });
     }
-    return { roles, form, errors, getError, hasError, rules: roleRules, groupedPermissions, submit, cancel };
+    return { roles, form, errors, getError, clearError, hasError, rules: roleRules, groupedPermissions, submit, cancel };
 }

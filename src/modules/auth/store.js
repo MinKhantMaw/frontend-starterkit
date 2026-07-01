@@ -114,6 +114,14 @@ export const useAuthStore = defineStore('auth', {
         this.clearSession()
       }
     },
+    async logoutAll() {
+      try {
+        await authService.logoutAll()
+        notifySuccess('All devices logged out')
+      } finally {
+        this.clearSession()
+      }
+    },
     clearSession() {
       this.token = null
       this.user = null

@@ -9,6 +9,9 @@ export const useProfileStore = defineStore('profile', {
     loading: false,
     saving: false,
     uploadingAvatar: false,
+    loginHistory: [],
+    loginHistoryMeta: null,
+    devices: [],
     validationErrors: {},
   }),
   actions: {
@@ -58,6 +61,32 @@ export const useProfileStore = defineStore('profile', {
       } finally {
         this.saving = false
       }
+    },
+
+    async fetchLoginHistory(params = {}) {
+      this.loading = true
+      try {
+        const payload = await profileService.loginHistory(params)
+        this.loginHistory = Array.isArray(payload.items) ? payload.items : []
+        this.loginHistoryMeta = payload.meta || null
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchDevices() {
+      this.loading = true
+      try {
+        this.devices = await profileService.devices()
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async revokeDevice(id) {
+      await profileService.revokeDevice(id)
+      this.devices = this.devices.filter((device) => String(device.id) !== String(id))
+      notifySuccess('Device logged out')
     },
   },
 })

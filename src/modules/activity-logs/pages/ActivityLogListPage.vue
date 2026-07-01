@@ -1,11 +1,11 @@
 <script setup>
-import InputText from 'primevue/inputtext'
-import BaseFilter from '@/components/common/SearchFilter.vue'
+import FilterBar from '@/components/common/FilterBar.vue'
+import BasePagination from '@/components/base/BasePagination.vue'
 import BaseTable from '@/components/base/BaseTable.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { useList } from './useActivityLogList'
 
-const { activityLogs, filters, columns, load, resetFilters } = useList()
+const { activityLogs, filters, columns, pagination, load, resetFilters } = useList()
 </script>
 
 <template>
@@ -13,9 +13,20 @@ const { activityLogs, filters, columns, load, resetFilters } = useList()
 
   <BaseTable :data="Array.isArray(activityLogs.items) ? activityLogs.items : []" :columns="columns" :loading="activityLogs.loading">
     <template #filters>
-      <BaseFilter @apply="load" @reset="resetFilters">
-        <InputText v-model="filters.search" placeholder="Search activity" />
-      </BaseFilter>
+      <FilterBar
+        :model-value="filters"
+        search-placeholder="Search activity"
+        @update:model-value="Object.assign(filters, $event)"
+        @apply="load"
+        @reset="resetFilters"
+      />
     </template>
   </BaseTable>
+
+  <BasePagination
+    :page="pagination.current_page"
+    :per-page="pagination.per_page"
+    :total="pagination.total"
+    @change="load($event.page, $event.perPage)"
+  />
 </template>

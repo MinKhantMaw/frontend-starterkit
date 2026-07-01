@@ -12,11 +12,14 @@ export function useFormErrors() {
             delete errors[field];
         });
     }
+    function clearError(field) {
+        delete errors[field];
+    }
     function getError(field) {
         return errors[field]?.[0] || '';
     }
     function hasError(field) {
         return Boolean(getError(field));
     }
-    return { errors, setErrors, clearErrors, getError, hasError };
+    return { errors, setErrors, clearErrors, clearError, getError, hasError };
 }

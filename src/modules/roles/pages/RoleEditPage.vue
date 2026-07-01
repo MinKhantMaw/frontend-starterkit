@@ -2,7 +2,7 @@
 import RoleForm from '@/modules/roles/components/RoleForm.vue'
 import { useEdit } from './useRoleEdit'
 
-const { roles, form, rules, groupedPermissions, getError, submit, cancel } = useEdit()
+const { roles, form, rules, groupedPermissions, getError, clearError, submit, cancel } = useEdit()
 </script>
 
 <template>
@@ -13,6 +13,7 @@ const { roles, form, rules, groupedPermissions, getError, submit, cancel } = use
     submit-label="Save"
     :grouped-permissions="groupedPermissions"
     :get-error="getError"
+    :clear-error="clearError"
     @submit="submit"
     @cancel="cancel"
   />

@@ -3,11 +3,13 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useAuthStore } from '@/modules/auth/store'
 import { useSecuritySettingsStore } from '@/modules/security-settings/stores/securitySettingsStore'
 import { PERMISSIONS } from '@/constants/permissions'
+import { useConfirmAction } from '@/composables/useConfirmAction'
 import { getApiErrorMessage, mapBackendErrorsToForm } from '@/utils/errorHandler'
 import { notifyError } from '@/utils/notify'
 
 const auth = useAuthStore()
 const securitySettings = useSecuritySettingsStore()
+const { confirmAction } = useConfirmAction()
 
 const setupDialogVisible = ref(false)
 const disableDialogVisible = ref(false)
@@ -17,6 +19,15 @@ const setupErrors = ref({})
 const disableErrors = ref({})
 const setupForm = reactive({ code: '' })
 const disableForm = reactive({ password: '' })
+const settingsForm = reactive({
+  max_login_attempts: 5,
+  lock_account_enabled: true,
+  login_rate_limit_enabled: true,
+  remember_me_enabled: true,
+  password_history_count: 5,
+  password_expiry_days: 90,
+  force_password_change_enabled: false,
+})
 
 const canUpdate = computed(() => auth.hasPermission(PERMISSIONS.SECURITY_SETTING_UPDATE))
 const isEnabled = computed(() => securitySettings.isTwoFactorEnabled)
@@ -35,9 +46,22 @@ const disableRules = {
   password: [{ required: true, message: 'Current password is required', trigger: 'blur' }],
 }
 
-onMounted(() => {
-  securitySettings.fetchSettings()
+onMounted(async () => {
+  await securitySettings.fetchSettings()
+  syncSettingsForm()
 })
+
+function syncSettingsForm() {
+  Object.assign(settingsForm, {
+    max_login_attempts: securitySettings.settings?.max_login_attempts ?? 5,
+    lock_account_enabled: securitySettings.settings?.lock_account_enabled ?? true,
+    login_rate_limit_enabled: securitySettings.settings?.login_rate_limit_enabled ?? true,
+    remember_me_enabled: securitySettings.settings?.remember_me_enabled ?? true,
+    password_history_count: securitySettings.settings?.password_history_count ?? 5,
+    password_expiry_days: securitySettings.settings?.password_expiry_days ?? 90,
+    force_password_change_enabled: securitySettings.settings?.force_password_change_enabled ?? false,
+  })
+}
 
 function getSetupError(field) {
   return setupErrors.value[field]?.[0] || ''
@@ -76,9 +100,17 @@ async function confirmSetup() {
 }
 
 function openDisableDialog() {
-  disableErrors.value = {}
-  disableForm.password = ''
-  disableDialogVisible.value = true
+  confirmAction({
+    message: 'Disable two-factor authentication for admin access?',
+    header: 'Disable 2FA',
+    acceptLabel: 'Continue',
+    acceptClass: 'p-button-danger',
+    onAccept: () => {
+      disableErrors.value = {}
+      disableForm.password = ''
+      disableDialogVisible.value = true
+    },
+  })
 }
 
 async function disableTwoFactor() {
@@ -95,6 +127,15 @@ async function disableTwoFactor() {
     if (!mapBackendErrorsToForm(error, disableFormRef.value, (errors) => (disableErrors.value = errors))) {
       notifyError(getApiErrorMessage(error, 'Invalid password'))
     }
+  }
+}
+
+async function saveSettings() {
+  try {
+    await securitySettings.updateSettings(settingsForm)
+    syncSettingsForm()
+  } catch (error) {
+    notifyError(getApiErrorMessage(error, 'Unable to update security settings'))
   }
 }
 </script>
@@ -133,6 +174,39 @@ async function disableTwoFactor() {
           </el-button>
         </div>
       </div>
+    </div>
+
+    <div class="panel p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Authentication Policy</h2>
+        <el-button v-if="canUpdate" type="primary" :loading="securitySettings.loading" @click="saveSettings">
+          Save Settings
+        </el-button>
+      </div>
+
+      <el-form :model="settingsForm" label-position="top" class="grid gap-4 md:grid-cols-2">
+        <el-form-item label="Max Login Attempts">
+          <el-input-number v-model="settingsForm.max_login_attempts" :min="1" :max="20" :disabled="!canUpdate" class="w-full" />
+        </el-form-item>
+        <el-form-item label="Password History Count">
+          <el-input-number v-model="settingsForm.password_history_count" :min="1" :max="24" :disabled="!canUpdate" class="w-full" />
+        </el-form-item>
+        <el-form-item label="Password Expiry Days">
+          <el-input-number v-model="settingsForm.password_expiry_days" :min="1" :max="365" :disabled="!canUpdate" class="w-full" />
+        </el-form-item>
+        <el-form-item label="Lock Account">
+          <el-switch v-model="settingsForm.lock_account_enabled" :disabled="!canUpdate" />
+        </el-form-item>
+        <el-form-item label="Login Rate Limit">
+          <el-switch v-model="settingsForm.login_rate_limit_enabled" :disabled="!canUpdate" />
+        </el-form-item>
+        <el-form-item label="Remember Me">
+          <el-switch v-model="settingsForm.remember_me_enabled" :disabled="!canUpdate" />
+        </el-form-item>
+        <el-form-item label="Force Password Change">
+          <el-switch v-model="settingsForm.force_password_change_enabled" :disabled="!canUpdate" />
+        </el-form-item>
+      </el-form>
     </div>
 
     <el-dialog v-model="setupDialogVisible" title="Enable Admin 2FA" width="420px" destroy-on-close>

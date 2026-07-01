@@ -3,7 +3,7 @@ import { securitySettingsService } from '@/modules/security-settings/services/se
 import { notifySuccess } from '@/utils/notify'
 
 function normalizeSettings(settings) {
-  return settings || { admin_two_factor_enabled: false }
+  return settings || { admin_2fa_enabled: false }
 }
 
 export const useSecuritySettingsStore = defineStore('securitySettings', {
@@ -13,7 +13,7 @@ export const useSecuritySettingsStore = defineStore('securitySettings', {
     setupData: null,
   }),
   getters: {
-    isTwoFactorEnabled: (state) => Boolean(state.settings?.admin_two_factor_enabled ?? state.settings?.two_factor_enabled),
+    isTwoFactorEnabled: (state) => Boolean(state.settings?.admin_2fa_enabled ?? state.settings?.admin_two_factor_enabled ?? state.settings?.two_factor_enabled),
   },
   actions: {
     async fetchSettings() {
@@ -30,6 +30,16 @@ export const useSecuritySettingsStore = defineStore('securitySettings', {
       try {
         this.setupData = await securitySettingsService.startTwoFactorSetup()
         return this.setupData
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async updateSettings(payload) {
+      this.loading = true
+      try {
+        this.settings = normalizeSettings(await securitySettingsService.updateSettings(payload))
+        notifySuccess('Security settings updated')
       } finally {
         this.loading = false
       }

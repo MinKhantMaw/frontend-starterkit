@@ -2,7 +2,7 @@
 import UserForm from '@/modules/users/components/UserForm.vue'
 import { useEdit } from './useUserEdit'
 
-const { users, form, rules, roleOptions, statusOptions, getError, submit, cancel } = useEdit()
+const { users, form, rules, roleOptions, statusOptions, getError, clearError, submit, cancel } = useEdit()
 </script>
 
 <template>
@@ -14,6 +14,7 @@ const { users, form, rules, roleOptions, statusOptions, getError, submit, cancel
     :role-options="roleOptions"
     :status-options="statusOptions"
     :get-error="getError"
+    :clear-error="clearError"
     @submit="submit"
     @cancel="cancel"
   />

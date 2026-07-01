@@ -1,7 +1,8 @@
-import { onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ROLE_OPTIONS, USER_STATUSES } from '@/constants/app';
+import { USER_STATUSES } from '@/constants/app';
 import { useFormErrors } from '@/composables/useFormErrors';
+import { useRoleStore } from '@/modules/roles/store';
 import { useUserStore } from '@/modules/users/store';
 import { mapBackendErrorsToForm } from '@/utils/errorHandler';
 import { notifyError } from '@/utils/notify';
@@ -10,19 +11,24 @@ export function useEdit() {
     const route = useRoute();
     const router = useRouter();
     const users = useUserStore();
-    const { errors, setErrors, clearErrors, getError, hasError } = useFormErrors();
+    const roleStore = useRoleStore();
+    const { errors, setErrors, clearErrors, clearError, getError, hasError } = useFormErrors();
     const form = reactive({
         name: '',
         email: '',
         phone: '',
         password: '',
         password_confirmation: '',
-        role_ids: [3],
+        role_ids: [],
         status: 'active',
     });
     const id = String(route.params.id);
+    const roleOptions = computed(() => roleStore.roles.map((role) => ({
+        label: role.name,
+        value: role.id,
+    })));
     onMounted(async () => {
-        await users.fetchUser(id);
+        await Promise.all([users.fetchUser(id), roleStore.fetchRoles()]);
         Object.assign(form, users.current || {});
         form.role_ids = users.current?.role_ids?.length ? users.current.role_ids : users.current?.role_id ? [users.current.role_id] : form.role_ids;
         form.password = '';
@@ -50,9 +56,10 @@ export function useEdit() {
         form,
         errors,
         getError,
+        clearError,
         hasError,
         rules: userUpdateRules,
-        roleOptions: ROLE_OPTIONS,
+        roleOptions,
         statusOptions: USER_STATUSES,
         submit,
         cancel,

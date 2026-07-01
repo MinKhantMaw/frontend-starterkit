@@ -28,6 +28,18 @@ export const profileService = {
   },
 
   async changePassword(payload) {
-    await api.put('/profile/password', payload)
+    await api.post('/profile/change-password', payload)
+  },
+
+  async loginHistory(params = {}) {
+    return (await api.get('/profile/login-history', { params })).data?.data ?? {}
+  },
+
+  async devices() {
+    return (await api.get('/profile/devices')).data?.data ?? []
+  },
+
+  async revokeDevice(id) {
+    await api.delete(`/profile/devices/${id}`)
   },
 }

@@ -13,6 +13,17 @@ function unwrapData(response) {
   return response?.data?.data ?? {}
 }
 
+function normalizeMeta(meta, itemCount = 0) {
+  return {
+    ...defaultMeta,
+    ...(meta || {}),
+    total: Number(meta?.total ?? itemCount),
+    current_page: Number(meta?.current_page ?? meta?.page ?? defaultMeta.current_page),
+    per_page: Number(meta?.per_page ?? meta?.perPage ?? defaultMeta.per_page),
+    last_page: Number(meta?.last_page ?? defaultMeta.last_page),
+  }
+}
+
 function normalizeRole(role) {
   const permissions = Array.isArray(role?.permissions) ? role.permissions : []
 
@@ -44,9 +55,10 @@ export const useRoleStore = defineStore('roles', {
       try {
         const response = await roleService.list(params)
         const payload = unwrapData(response)
+        const items = Array.isArray(payload.items) ? payload.items : []
 
-        this.roles = Array.isArray(payload.items) ? payload.items.map(normalizeRole) : []
-        this.meta = payload.meta ?? { ...defaultMeta }
+        this.roles = items.map(normalizeRole)
+        this.meta = normalizeMeta(payload.meta, this.roles.length)
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to load roles'
         throw error
@@ -102,7 +114,7 @@ export const useRoleStore = defineStore('roles', {
       try {
         await roleService.remove(id)
         this.roles = this.roles.filter((role) => String(role.id) !== String(id))
-        this.meta = { ...this.meta, total: Math.max(0, Number(this.meta.total || 0) - 1) }
+        this.meta = normalizeMeta({ ...this.meta, total: Math.max(0, Number(this.meta.total || 0) - 1) }, this.roles.length)
         notifySuccess('Role deleted')
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to delete role'

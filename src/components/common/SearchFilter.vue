@@ -1,17 +1,32 @@
 <script setup>
-import Button from 'primevue/button'
+import FilterBar from '@/components/common/FilterBar.vue'
 
-defineEmits(['apply', 'reset'])
+defineProps({
+  modelValue: { type: Object, default: () => ({}) },
+  searchKey: { type: String, default: 'search' },
+  searchPlaceholder: { type: String, default: 'Search' },
+  showSearch: { type: Boolean, default: true },
+  selectFilters: { type: Array, default: () => [] },
+  showDateRange: { type: Boolean, default: false },
+  dateRangeKey: { type: String, default: 'date_range' },
+})
+
+defineEmits(['update:modelValue', 'apply', 'reset'])
 </script>
 
 <template>
-  <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-    <div class="grid gap-3 md:grid-cols-3">
-      <slot />
-    </div>
-    <div class="flex gap-2">
-      <Button label="Reset" severity="secondary" outlined @click="$emit('reset')" />
-      <Button label="Filter" icon="pi pi-filter" @click="$emit('apply')" />
-    </div>
-  </div>
+  <FilterBar
+    :model-value="modelValue"
+    :search-key="searchKey"
+    :search-placeholder="searchPlaceholder"
+    :show-search="showSearch"
+    :select-filters="selectFilters"
+    :show-date-range="showDateRange"
+    :date-range-key="dateRangeKey"
+    @update:model-value="$emit('update:modelValue', $event)"
+    @apply="$emit('apply')"
+    @reset="$emit('reset')"
+  >
+    <slot />
+  </FilterBar>
 </template>

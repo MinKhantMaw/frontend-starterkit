@@ -3,6 +3,7 @@ import router from '@/router';
 import { tokenStorage } from '@/api/tokenStorage';
 import { useAppStore } from '@/stores/app';
 import { handleApiError } from '@/utils/errorHandler';
+import { notifyError } from '@/utils/notify';
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
     headers: {
@@ -32,7 +33,14 @@ api.interceptors.response.use((response) => {
         }
     }
     else if (status === 403) {
-        router.push({ name: 'forbidden' });
+        const message = error.response?.data?.message || 'You do not have permission to perform this action.';
+        notifyError(message, 'Forbidden');
+        if (!['login', 'two-factor-challenge'].includes(router.currentRoute.value.name)) {
+            router.push({ name: 'forbidden' });
+        }
+    }
+    else if (status === 429) {
+        notifyError('Too many login attempts. Please wait a minute and try again.', 'Rate limit exceeded');
     }
     else {
         handleApiError(error, router);

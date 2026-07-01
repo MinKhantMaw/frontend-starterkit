@@ -1,11 +1,11 @@
 import { computed, onMounted, reactive } from 'vue'
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirmAction } from '@/composables/useConfirmAction'
 import { useUserStore } from '@/modules/users/store'
 import { useRoleStore } from '@/modules/roles/store'
 import { USER_STATUSES } from '@/constants/app'
 
 export function useList() {
-  const confirm = useConfirm()
+  const { confirmDelete: confirmDeleteAction } = useConfirmAction()
   const users = useUserStore()
   const roleStore = useRoleStore()
   const filters = reactive({ page: 1, perPage: 15, search: '', role_id: '', status: '' })
@@ -14,6 +14,8 @@ export function useList() {
     { field: 'name', header: 'Name', sortable: true },
     { field: 'email', header: 'Email' },
     { field: 'role', header: 'Role' },
+    { field: 'failed_login_attempts', header: 'Failed Attempts' },
+    { field: 'locked_at', header: 'Locked At' },
   ]
 
   const pagination = computed(() => users.meta || {})
@@ -43,22 +45,21 @@ export function useList() {
   }
 
   function confirmDelete(user) {
-    confirm.require({
-      message: `Delete ${user.name}?`,
-      header: 'Delete user',
-      icon: 'pi pi-exclamation-triangle',
-      acceptClass: 'p-button-danger',
-      accept: async () => {
+    confirmDeleteAction({
+      name: user.name,
+      onAccept: async () => {
         await users.deleteUser(user.id)
         await load()
       },
     })
   }
 
-  onMounted(() => {
-    load()
-    roleStore.fetchRoles()
-  })
+  async function reactivate(user) {
+    await users.updateStatus(user.id, 'active')
+    await load()
+  }
 
-  return { users, filters, columns, pagination, roleOptions, statusOptions: USER_STATUSES, load, applyFilters, resetFilters, confirmDelete }
+  onMounted(() => Promise.all([load(), roleStore.fetchRoles()]))
+
+  return { users, filters, columns, pagination, roleOptions, statusOptions: USER_STATUSES, load, applyFilters, resetFilters, confirmDelete, reactivate }
 }
