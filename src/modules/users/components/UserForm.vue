@@ -1,23 +1,17 @@
-<script setup lang="ts">
-import type { FormInstance, FormRules } from 'element-plus'
-import type { UserCreatePayload, UserUpdatePayload } from '@/types/user'
+<script setup>
+defineProps({
+  rules: { type: Object, required: true },
+  loading: { type: Boolean, default: false },
+  submitLabel: { type: String, required: true },
+  roleOptions: { type: Array, required: true },
+  statusOptions: { type: Array, required: true },
+  getError: { type: Function, required: true },
+})
 
-defineProps<{
-  rules: FormRules
-  loading?: boolean
-  submitLabel: string
-  roleOptions: readonly { label: string; value: string | number }[]
-  statusOptions: readonly { label: string; value: string | number }[]
-  getError: (field: string) => string
-}>()
+const emit = defineEmits(['submit', 'cancel'])
 
-const emit = defineEmits<{
-  submit: [formRef: FormInstance | undefined]
-  cancel: []
-}>()
-
-const formRef = defineModel<FormInstance | undefined>('formRef')
-const model = defineModel<UserCreatePayload | UserUpdatePayload>('model', { required: true })
+const formRef = defineModel('formRef')
+const model = defineModel('model', { required: true })
 </script>
 
 <template>

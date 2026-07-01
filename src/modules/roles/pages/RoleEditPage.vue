@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import RoleForm from '@/modules/roles/components/RoleForm.vue'
 import { useEdit } from './useRoleEdit'
 

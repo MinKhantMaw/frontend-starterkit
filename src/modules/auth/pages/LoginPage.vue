@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import LoginForm from '@/modules/auth/components/LoginForm.vue'
 import { useLogin } from './useLogin'
 

@@ -1,44 +1,38 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
-import type { RolePayload } from '@/types/role'
-import type { PermissionRecord } from '@/types/permission'
 
-const props = defineProps<{
-  rules: FormRules
-  loading?: boolean
-  submitLabel: string
-  groupedPermissions: Record<string, PermissionRecord[]>
-  getError: (field: string) => string
-}>()
+const props = defineProps({
+  rules: { type: Object, required: true },
+  loading: { type: Boolean, default: false },
+  submitLabel: { type: String, required: true },
+  groupedPermissions: { type: Object, required: true },
+  getError: { type: Function, required: true },
+})
 
-const emit = defineEmits<{
-  submit: [formRef: FormInstance | undefined]
-  cancel: []
-}>()
+const emit = defineEmits(['submit', 'cancel'])
 
-const formRef = defineModel<FormInstance | undefined>('formRef')
-const model = defineModel<RolePayload>('model', { required: true })
+const formRef = defineModel('formRef')
+const model = defineModel('model', { required: true })
 
 const allPermissionNames = computed(() =>
   Object.values(props.groupedPermissions).flatMap((items) => items.map((permission) => permission.name)),
 )
 
-function actionLabel(permission: string): string {
+function actionLabel(permission) {
   return permission.split('.').at(-1) || permission
 }
 
-function isModuleChecked(items: PermissionRecord[]): boolean {
+function isModuleChecked(items) {
   const names = items.map((permission) => permission.name)
   return names.length > 0 && names.every((permission) => model.value.permissions.includes(permission))
 }
 
-function isModuleIndeterminate(items: PermissionRecord[]): boolean {
+function isModuleIndeterminate(items) {
   const selected = items.filter((permission) => model.value.permissions.includes(permission.name)).length
   return selected > 0 && selected < items.length
 }
 
-function setModulePermissions(items: PermissionRecord[], checked: boolean): void {
+function setModulePermissions(items, checked) {
   const names = items.map((permission) => permission.name)
   model.value.permissions = checked
     ? Array.from(new Set([...model.value.permissions, ...names]))
@@ -48,7 +42,7 @@ function setModulePermissions(items: PermissionRecord[], checked: boolean): void
 const allChecked = computed(() => allPermissionNames.value.length > 0 && allPermissionNames.value.every((permission) => model.value.permissions.includes(permission)))
 const allIndeterminate = computed(() => model.value.permissions.length > 0 && !allChecked.value)
 
-function setAllPermissions(checked: boolean): void {
+function setAllPermissions(checked) {
   model.value.permissions = checked ? [...allPermissionNames.value] : []
 }
 </script>
@@ -69,7 +63,7 @@ function setAllPermissions(checked: boolean): void {
           <section v-for="(items, module) in groupedPermissions" :key="module" class="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
             <div class="mb-3 flex items-center justify-between gap-3">
               <p class="text-sm font-medium capitalize">{{ String(module).replaceAll('_', ' ') }}</p>
-              <el-checkbox :model-value="isModuleChecked(items)" :indeterminate="isModuleIndeterminate(items)" @change="(checked: boolean) => setModulePermissions(items, checked)">
+              <el-checkbox :model-value="isModuleChecked(items)" :indeterminate="isModuleIndeterminate(items)" @change="(checked) => setModulePermissions(items, checked)">
                 Select All
               </el-checkbox>
             </div>

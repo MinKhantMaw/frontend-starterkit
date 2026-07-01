@@ -1,16 +1,14 @@
-<script setup lang="ts">
-defineProps<{
-  label?: string
-  accept?: string
-  error?: string
-}>()
+<script setup>
+defineProps({
+  label: { type: String, default: '' },
+  accept: { type: String, default: '' },
+  error: { type: String, default: '' },
+})
 
-const emit = defineEmits<{
-  select: [file: File]
-}>()
+const emit = defineEmits(['select'])
 
-function onChange(event: Event): void {
-  const input = event.target as HTMLInputElement
+function onChange(event) {
+  const input = event.target
   const file = input.files?.[0]
   if (file) emit('select', file)
 }

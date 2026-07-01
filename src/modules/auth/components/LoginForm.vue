@@ -1,16 +1,13 @@
-<script setup lang="ts">
-import type { FormInstance, FormRules } from 'element-plus'
-import type { LoginPayload } from '@/types/auth'
+<script setup>
+defineProps({
+  rules: { type: Object, required: true },
+  loading: { type: Boolean, default: false },
+  getError: { type: Function, required: true },
+})
 
-defineProps<{
-  rules: FormRules
-  loading?: boolean
-  getError: (field: string) => string
-}>()
-
-const emit = defineEmits<{ submit: [formRef: FormInstance | undefined] }>()
-const formRef = defineModel<FormInstance | undefined>('formRef')
-const model = defineModel<LoginPayload>('model', { required: true })
+const emit = defineEmits(['submit'])
+const formRef = defineModel('formRef')
+const model = defineModel('model', { required: true })
 </script>
 
 <template>
