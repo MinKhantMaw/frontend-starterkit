@@ -3,7 +3,7 @@ import Paginator from 'primevue/paginator'
 
 const props = defineProps({
   page: { type: Number, default: 1 },
-  perPage: { type: Number, default: 10 },
+  perPage: { type: Number, default: 15 },
   total: { type: Number, default: 0 },
 })
 
@@ -20,7 +20,7 @@ function onPage(event) {
       :first="(props.page - 1) * props.perPage"
       :rows="props.perPage"
       :total-records="props.total"
-      :rows-per-page-options="[10, 25, 50]"
+      :rows-per-page-options="[15, 25, 50]"
       @page="onPage"
     />
   </div>

@@ -1,12 +1,20 @@
 <script setup>
+import { computed } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 
-defineProps({
+const props = defineProps({
+  data: { type: Array, default: undefined },
   value: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
   columns: { type: Array, default: () => [] },
   emptyMessage: { type: String, default: 'No records found' },
+})
+
+const rows = computed(() => {
+  if (Array.isArray(props.data)) return props.data
+  if (Array.isArray(props.value)) return props.value
+  return []
 })
 </script>
 
@@ -18,7 +26,7 @@ defineProps({
     </div>
 
     <DataTable
-      :value="value"
+      :value="rows"
       :loading="loading"
       data-key="id"
       responsive-layout="scroll"

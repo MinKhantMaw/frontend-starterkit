@@ -1,8 +1,8 @@
 import { onMounted, reactive } from 'vue'
-import { useActivityLogStore } from '@/modules/activity-logs/stores/activityLogStore'
+import { useAuditLogStore } from '@/modules/audit-logs/stores/auditLogStore'
 
 export function useList() {
-  const activityLogs = useActivityLogStore()
+  const activityLogs = useAuditLogStore()
   const filters = reactive({ search: '' })
   const columns = [
     { field: 'actor', header: 'Actor' },

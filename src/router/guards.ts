@@ -3,6 +3,7 @@ import { APP_NAME } from '@/constants/app'
 import { useAuthStore } from '@/modules/auth/store'
 
 const guestRouteNames = ['login', 'forgot-password', 'reset-password']
+const twoFactorRouteName = 'two-factor-challenge'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -17,6 +18,11 @@ export function applyRouteGuards(router: Router): void {
   router.beforeEach(async (to) => {
     const auth = useAuthStore()
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+
+    if (String(to.name) === twoFactorRouteName) {
+      if (auth.isAuthenticated) return { name: 'dashboard' }
+      if (!auth.temporaryTwoFactorToken) return { name: 'login' }
+    }
 
     if (requiresAuth && !auth.isAuthenticated) {
       return { name: 'login', query: { redirect: to.fullPath } }

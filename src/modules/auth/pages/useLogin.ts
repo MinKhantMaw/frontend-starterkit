@@ -15,9 +15,9 @@ export function useLogin() {
   const { errors, setErrors, clearErrors, getError, hasError } = useFormErrors()
 
   const form = reactive<LoginPayload>({
-    email: 'admin@example.com',
-    password: 'password',
-    remember: true,
+    email: '',
+    password: '',
+    remember: false,
   })
 
   async function submit(formRef?: FormInstance) {
@@ -27,7 +27,12 @@ export function useLogin() {
     if (!(await formRef?.validate().catch(() => false))) return
 
     try {
-      await auth.login(form)
+      const result = await auth.login(form)
+      if (result?.requiresTwoFactor) {
+        router.push({ name: 'two-factor-challenge' })
+        return
+      }
+
       router.push(route.query.redirect ? String(route.query.redirect) : { name: 'dashboard' })
     } catch (error) {
       if (!mapBackendErrorsToForm(error, formRef, setErrors)) {

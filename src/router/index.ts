@@ -8,6 +8,7 @@ import { profileRoutes } from '@/modules/profile/route'
 import { auditLogRoutes } from '@/modules/audit-logs/route'
 import { activityLogRoutes } from '@/modules/activity-logs/route'
 import { notificationRoutes } from '@/modules/notifications/route'
+import { securitySettingsRoutes } from '@/modules/security-settings/route'
 import { errorRoutes, errorChildRoutes } from '@/modules/errors/route'
 import { applyRouteGuards } from '@/router/guards'
 
@@ -21,6 +22,7 @@ const adminRoutes: RouteRecordRaw[] = [
   ...auditLogRoutes,
   ...activityLogRoutes,
   ...notificationRoutes,
+  ...securitySettingsRoutes,
   ...errorChildRoutes,
 ]
 

@@ -1,1 +1,2 @@
-export { useActivityLogStore as useAuditLogStore } from '@/modules/activity-logs/stores/activityLogStore'
+// @ts-nocheck
+export { useAuditLogStore } from './auditLogStore.js'

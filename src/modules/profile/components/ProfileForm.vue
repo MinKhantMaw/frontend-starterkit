@@ -1,22 +1,41 @@
-<script setup lang="ts">
-import type { FormInstance, FormRules } from 'element-plus'
-import type { ProfilePayload } from '@/modules/profile/types'
+<script setup>
+import { User } from '@element-plus/icons-vue'
 
-defineProps<{
-  rules: FormRules
-  loading?: boolean
-  canSubmit?: boolean
-  getError: (field: string) => string
-}>()
+defineProps({
+  rules: { type: Object, required: true },
+  loading: { type: Boolean, default: false },
+  avatarLoading: { type: Boolean, default: false },
+  avatarUrl: { type: String, default: '' },
+  canSubmit: { type: Boolean, default: false },
+  getError: { type: Function, required: true },
+})
 
-const emit = defineEmits<{ submit: [formRef: FormInstance | undefined]; cancel: [] }>()
-const formRef = defineModel<FormInstance | undefined>('formRef')
-const model = defineModel<ProfilePayload>('model', { required: true })
+const emit = defineEmits(['submit', 'upload-avatar', 'cancel'])
+const formRef = defineModel('formRef')
+const model = defineModel('model', { required: true })
 </script>
 
 <template>
   <el-form ref="formRef" :model="model" :rules="rules" label-position="top" @submit.prevent="emit('submit', formRef)">
     <div class="panel grid gap-4 p-5">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <el-avatar :src="avatarUrl" :size="72">
+          <el-icon :size="32"><User /></el-icon>
+        </el-avatar>
+        <div>
+          <el-upload
+            :show-file-list="false"
+            :auto-upload="false"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            :disabled="avatarLoading"
+            :on-change="(file) => emit('upload-avatar', file)"
+          >
+            <el-button type="primary" plain :loading="avatarLoading" :disabled="avatarLoading">Upload avatar</el-button>
+          </el-upload>
+          <p class="mt-2 text-xs text-slate-500">JPG, PNG, or WebP. Maximum 2MB.</p>
+        </div>
+      </div>
+
       <el-form-item label="Name" prop="name" :error="getError('name')">
         <el-input v-model="model.name" />
       </el-form-item>

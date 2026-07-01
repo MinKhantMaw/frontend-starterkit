@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import ProfileForm from '@/modules/profile/components/ProfileForm.vue'
-import { useDetail } from './useProfile'
+import { useDetail } from './useProfile.js'
 
-const { profile, form, rules, getError, canUpdate, submit, cancel } = useDetail()
+const { profile, form, rules, getError, canUpdate, avatarUrl, submit, uploadAvatar, cancel } = useDetail()
 </script>
 
 <template>
@@ -10,9 +10,12 @@ const { profile, form, rules, getError, canUpdate, submit, cancel } = useDetail(
     v-model:model="form"
     :rules="rules"
     :loading="profile.saving"
+    :avatar-url="avatarUrl"
+    :avatar-loading="profile.uploadingAvatar"
     :can-submit="canUpdate"
     :get-error="getError"
     @submit="submit"
+    @upload-avatar="uploadAvatar"
     @cancel="cancel"
   />
 </template>

@@ -11,7 +11,7 @@ const { activityLogs, filters, columns, load, resetFilters } = useList()
 <template>
   <PageHeader title="Activity Logs" description="Audit trail placeholder for cross-module actions." />
 
-  <BaseTable :value="activityLogs.items" :columns="columns" :loading="activityLogs.loading">
+  <BaseTable :data="Array.isArray(activityLogs.items) ? activityLogs.items : []" :columns="columns" :loading="activityLogs.loading">
     <template #filters>
       <BaseFilter @apply="load" @reset="resetFilters">
         <InputText v-model="filters.search" placeholder="Search activity" />

@@ -14,6 +14,8 @@ export const PermissionEnum = {
   AUDIT_LOG_VIEW: 'audit_log.view',
   ACTIVITY_LOG_VIEW: 'activity_log.view',
   NOTIFICATION_VIEW: 'notification.view',
+  SECURITY_SETTING_VIEW: 'security-setting.view',
+  SECURITY_SETTING_UPDATE: 'security-setting.update',
   FILE_UPLOAD: 'file.upload',
 } as const
 

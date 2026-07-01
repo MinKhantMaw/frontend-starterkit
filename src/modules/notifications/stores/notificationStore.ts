@@ -1,1 +1,2 @@
-export { useActivityLogStore as useNotificationStore } from '@/modules/activity-logs/stores/activityLogStore'
+// @ts-nocheck
+export { useNotificationStore } from './notificationStore.js'

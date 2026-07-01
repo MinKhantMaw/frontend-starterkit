@@ -1,7 +1,6 @@
 import { onMounted, reactive } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useRoleStore } from '@/modules/roles/store'
-import type { Role } from '@/modules/roles/types'
 
 export function useList() {
   const confirm = useConfirm()
@@ -9,7 +8,9 @@ export function useList() {
   const filters = reactive({ search: '' })
   const columns = [
     { field: 'name', header: 'Name' },
-    { field: 'key', header: 'Key' },
+    { field: 'guard_name', header: 'Guard' },
+    { field: 'permission_count', header: 'Permissions' },
+    { field: 'created_at', header: 'Created At' },
   ]
 
   function load() {
@@ -21,7 +22,7 @@ export function useList() {
     load()
   }
 
-  function confirmDelete(role: Role) {
+  function confirmDelete(role) {
     confirm.require({
       message: `Delete ${role.name}?`,
       header: 'Delete role',

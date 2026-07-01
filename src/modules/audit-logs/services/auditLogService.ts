@@ -1,1 +1,2 @@
-export { activityLogService as auditLogService } from '@/modules/activity-logs/services/activityLogService'
+// @ts-nocheck
+export { auditLogService } from './auditLogService.js'

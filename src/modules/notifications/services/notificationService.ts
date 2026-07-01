@@ -1,1 +1,2 @@
-export { activityLogService as notificationService } from '@/modules/activity-logs/services/activityLogService'
+// @ts-nocheck
+export { notificationService } from './notificationService.js'

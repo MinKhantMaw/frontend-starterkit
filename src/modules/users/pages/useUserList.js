@@ -2,12 +2,11 @@ import { computed, onMounted, reactive } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useUserStore } from '@/modules/users/store'
 import { ROLE_OPTIONS, USER_STATUSES } from '@/constants/app'
-import type { User } from '@/modules/users/types'
 
 export function useList() {
   const confirm = useConfirm()
   const users = useUserStore()
-  const filters = reactive({ page: 1, perPage: 10, search: '', role: '', status: '' })
+  const filters = reactive({ page: 1, perPage: 15, search: '', role: '', status: '' })
 
   const columns = [
     { field: 'name', header: 'Name', sortable: true },
@@ -16,11 +15,12 @@ export function useList() {
     { field: 'status', header: 'Status' },
   ]
 
-  const pagination = computed(() => users.meta)
+  const pagination = computed(() => users.meta || {})
 
   async function load(page = filters.page, perPage = filters.perPage) {
     filters.page = page
     filters.perPage = perPage
+
     await users.fetchUsers(filters)
   }
 
@@ -35,7 +35,7 @@ export function useList() {
     load(1, filters.perPage)
   }
 
-  function confirmDelete(user: User) {
+  function confirmDelete(user) {
     confirm.require({
       message: `Delete ${user.name}?`,
       header: 'Delete user',

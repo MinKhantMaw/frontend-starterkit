@@ -26,7 +26,7 @@ const { users, filters, columns, pagination, roleOptions, statusOptions, load, a
     </template>
   </PageHeader>
 
-  <BaseTable :value="users.items" :columns="columns" :loading="users.loading">
+  <BaseTable :data="Array.isArray(users.users) ? users.users : []" :columns="columns" :loading="users.loading">
     <template #filters>
       <BaseFilter @apply="applyFilters" @reset="resetFilters">
         <InputText v-model="filters.search" placeholder="Search users" />
@@ -53,8 +53,8 @@ const { users, filters, columns, pagination, roleOptions, statusOptions, load, a
   </BaseTable>
 
   <BasePagination
-    :page="pagination.page"
-    :per-page="pagination.perPage"
+    :page="pagination.current_page"
+    :per-page="pagination.per_page"
     :total="pagination.total"
     @change="load($event.page, $event.perPage)"
   />

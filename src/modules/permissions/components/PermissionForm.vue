@@ -1,16 +1,13 @@
-<script setup lang="ts">
-import type { FormInstance, FormRules } from 'element-plus'
-import type { PermissionPayload } from '@/types/permission'
+<script setup>
+defineProps({
+  rules: { type: Object, required: true },
+  loading: { type: Boolean, default: false },
+  getError: { type: Function, required: true },
+})
 
-defineProps<{
-  rules: FormRules
-  loading?: boolean
-  getError: (field: string) => string
-}>()
-
-const emit = defineEmits<{ submit: [formRef: FormInstance | undefined]; cancel: [] }>()
-const formRef = defineModel<FormInstance | undefined>('formRef')
-const model = defineModel<PermissionPayload>('model', { required: true })
+const emit = defineEmits(['submit', 'cancel'])
+const formRef = defineModel('formRef')
+const model = defineModel('model', { required: true })
 </script>
 
 <template>

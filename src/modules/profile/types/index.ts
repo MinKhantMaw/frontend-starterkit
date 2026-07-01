@@ -4,6 +4,8 @@ export interface Profile {
   email: string
   phone?: string
   jobTitle?: string
+  avatar_path?: string | null
+  avatar_url?: string | null
 }
 
 export type ProfilePayload = Omit<Profile, 'id'>

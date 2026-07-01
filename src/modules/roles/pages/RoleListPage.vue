@@ -24,16 +24,13 @@ const { roles, filters, columns, load, resetFilters, confirmDelete } = useList()
     </template>
   </PageHeader>
 
-  <BaseTable :value="roles.items" :columns="columns" :loading="roles.loading">
+  <BaseTable :data="Array.isArray(roles.roles) ? roles.roles : []" :columns="columns" :loading="roles.loading">
     <template #filters>
       <BaseFilter @apply="load" @reset="resetFilters">
         <InputText v-model="filters.search" placeholder="Search roles" />
       </BaseFilter>
     </template>
 
-    <Column header="Permissions">
-      <template #body="{ data }">{{ data.permissions.length }}</template>
-    </Column>
     <Column header="Actions" class="w-44">
       <template #body="{ data }">
         <div class="flex gap-1">
